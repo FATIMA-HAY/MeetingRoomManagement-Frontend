@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minutes Review - Meeting Room Booking System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Minutes Review Screen -->
+    <div id="minutesReviewScreen" class="screen active">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <i class="fas fa-building"></i>
+                <span>MeetingHub</span>
+            </div>
+            
+            <div class="nav-menu">
+                <a href="dashboard.html" class="nav-link" data-screen="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </a>
+                <a href="booking.html" class="nav-link" data-screen="booking">
+                    <i class="fas fa-calendar-plus"></i>
+                    Book Meeting
+                </a>
+                <a href="minutes.html" class="nav-link" data-screen="minutes">
+                    <i class="fas fa-file-alt"></i>
+                    Minutes
+                </a>
+                <a href="minutes-review.html" class="nav-link active" data-screen="minutes-review">
+                    <i class="fas fa-search"></i>
+                    Review
+                </a>
+                <a href="admin.html" class="nav-link" data-screen="admin">
+                    <i class="fas fa-cog"></i>
+                    Admin
+                </a>
+            </div>
+            
+            <div class="nav-user">
+                <div class="user-info">
+                    <span id="userName">John Doe</span>
+                    <small id="userRole">Manager</small>
+                </div>
+                <button class="btn btn-outline btn-sm" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <div class="review-header">
+                <h1>Minutes Review</h1>
+                <p>Search and review past meeting minutes and action items.</p>
+            </div>
+
+            <!-- Search and Filters -->
+            <div class="search-filters">
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="Search by keyword, attendee, or meeting title..." class="input-field">
+                    <button class="search-btn" onclick="performSearch()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                
+                <div class="filters">
+                    <select id="dateFilter" class="input-field" onchange="applyFilters()">
+                        <option value="">All Dates</option>
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                        <option value="quarter">This Quarter</option>
+                        <option value="year">This Year</option>
+                    </select>
+                    
+                    <select id="statusFilter" class="input-field" onchange="applyFilters()">
+                        <option value="">All Statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="completed">Completed</option>
+                        <option value="overdue">Overdue</option>
+                    </select>
+                    
+                    <select id="priorityFilter" class="input-field" onchange="applyFilters()">
+                        <option value="">All Priorities</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Minutes List -->
+            <div class="minutes-list" id="minutesList">
+                <!-- Minutes will be populated by JavaScript -->
+            </div>
+
+            <!-- Action Items Summary -->
+            <div class="action-items-summary">
+                <h3>Action Items Overview</h3>
+                <div class="summary-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalActions">0</span>
+                        <span class="stat-label">Total Actions</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="pendingActions">0</span>
+                        <span class="stat-label">Pending</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="completedActions">0</span>
+                        <span class="stat-label">Completed</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="overdueActions">0</span>
+                        <span class="stat-label">Overdue</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Minutes Detail Modal -->
+    <div id="minutesDetailModal" class="modal-overlay">
+        <div class="modal modal-large">
+            <div class="modal-header">
+                <h3 id="modalTitle">Meeting Minutes</h3>
+                <button class="modal-close" onclick="closeMinutesModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Minutes content will be populated by JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeMinutesModal()">Close</button>
+                <button class="btn btn-primary" onclick="editMinutes()">
+                    <i class="fas fa-edit"></i> Edit
+                </button>
+                <button class="btn btn-secondary" onclick="exportMinutes()">
+                    <i class="fas fa-download"></i> Export
+                </button>
+                <button class="btn btn-outline" onclick="shareMinutes()">
+                    <i class="fas fa-share"></i> Share
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api-config.js"></script>
+    <script src="js/minutes-review.js"></script>
+    <script src="js/router.js"></script>
+    <script src="demo-data.js"></script>
+</body>
+</html> 

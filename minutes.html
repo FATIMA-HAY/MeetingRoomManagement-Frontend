@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meeting Minutes - Meeting Room Booking System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Minutes Template Screen -->
+    <div id="minutesScreen" class="screen active">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <i class="fas fa-building"></i>
+                <span>MeetingHub</span>
+            </div>
+            
+            <div class="nav-menu">
+                <a href="dashboard.html" class="nav-link" data-screen="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </a>
+                <a href="booking.html" class="nav-link" data-screen="booking">
+                    <i class="fas fa-calendar-plus"></i>
+                    Book Meeting
+                </a>
+                <a href="minutes.html" class="nav-link active" data-screen="minutes">
+                    <i class="fas fa-file-alt"></i>
+                    Minutes
+                </a>
+                <a href="minutes-review.html" class="nav-link" data-screen="minutes-review">
+                    <i class="fas fa-search"></i>
+                    Review
+                </a>
+                <a href="admin.html" class="nav-link" data-screen="admin">
+                    <i class="fas fa-cog"></i>
+                    Admin
+                </a>
+            </div>
+            
+            <div class="nav-user">
+                <div class="user-info">
+                    <span id="userName">John Doe</span>
+                    <small id="userRole">Manager</small>
+                </div>
+                <button class="btn btn-outline btn-sm" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <div class="minutes-header">
+                <h1>Meeting Minutes</h1>
+                <p>Document the key points and action items from your meeting.</p>
+            </div>
+
+            <div class="minutes-container">
+                <form id="minutesForm" class="minutes-form">
+                    <div class="form-section">
+                        <h3>Meeting Information</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="minutesTitle">Meeting Title</label>
+                                <input type="text" id="minutesTitle" name="minutesTitle" class="input-field" value="Team Standup Meeting" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="minutesDate">Date</label>
+                                <input type="date" id="minutesDate" name="minutesDate" class="input-field" value="2024-01-15" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Attendees</h3>
+                        <div class="attendees-list" id="minutesAttendees">
+                            <!-- Attendees will be populated by JavaScript -->
+                        </div>
+                        <button type="button" class="btn btn-outline btn-sm" onclick="addAttendee()">
+                            <i class="fas fa-plus"></i>
+                            Add Attendee
+                        </button>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Agenda Items</h3>
+                        <div class="agenda-items" id="agendaItems">
+                            <!-- Agenda items will be populated by JavaScript -->
+                        </div>
+                        <button type="button" class="btn btn-outline btn-sm" onclick="addAgendaItem()">
+                            <i class="fas fa-plus"></i>
+                            Add Agenda Item
+                        </button>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Decisions & Action Items</h3>
+                        <div class="action-items" id="actionItems">
+                            <!-- Action items will be populated by JavaScript -->
+                        </div>
+                        <button type="button" class="btn btn-outline btn-sm" onclick="addActionItem()">
+                            <i class="fas fa-plus"></i>
+                            Add Action Item
+                        </button>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Attachments</h3>
+                        <div class="file-upload">
+                            <input type="file" id="fileUpload" multiple accept=".pdf,.doc,.docx,.jpg,.png">
+                            <label for="fileUpload" class="file-upload-label">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span>Choose files or drag them here</span>
+                            </label>
+                        </div>
+                        <div class="uploaded-files" id="uploadedFiles"></div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" onclick="saveDraft()">
+                            <i class="fas fa-save"></i>
+                            Save Draft
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-share"></i>
+                            Finalize & Share
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/minutes.js"></script>
+    <script src="js/router.js"></script>
+    <script src="demo-data.js"></script>
+</body>
+</html> 

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meeting Room Booking System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="screen active">
+        <div class="loading-container">
+            <div class="logo">
+                <i class="fas fa-building"></i>
+                <h1>MeetingHub</h1>
+            </div>
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <p>Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/utils.js"></script>
+    <script src="js/router.js"></script>
+    <script src="demo-data.js"></script>
+    <script>
+        // Entry point script
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check authentication status and redirect accordingly
+            const token = localStorage.getItem('authToken');
+            
+            if (token) {
+                // User is authenticated, redirect to dashboard
+                window.location.href = 'dashboard.html';
+            } else {
+                // User is not authenticated, redirect to login
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</body>
+</html> 

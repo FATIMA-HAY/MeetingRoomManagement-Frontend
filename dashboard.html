@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Meeting Room Booking System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Dashboard Screen -->
+    <div id="dashboardScreen" class="screen active">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <i class="fas fa-building"></i>
+                <span>MeetingHub</span>
+            </div>
+            
+            <div class="nav-menu">
+                <a href="dashboard.html" class="nav-link active" data-screen="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </a>
+                <a href="booking.html" class="nav-link" data-screen="booking">
+                    <i class="fas fa-calendar-plus"></i>
+                    Book Meeting
+                </a>
+                <a href="minutes.html" class="nav-link" data-screen="minutes">
+                    <i class="fas fa-file-alt"></i>
+                    Minutes
+                </a>
+                <a href="minutes-review.html" class="nav-link" data-screen="minutes-review">
+                    <i class="fas fa-search"></i>
+                    Review
+                </a>
+                <a href="admin.html" class="nav-link" data-screen="admin">
+                    <i class="fas fa-cog"></i>
+                    Admin
+                </a>
+            </div>
+            
+            <div class="nav-user">
+                <div class="user-info">
+                    <span id="userName">John Doe</span>
+                    <small id="userRole">Manager</small>
+                </div>
+                <button class="btn btn-outline btn-sm" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <div class="dashboard-header">
+                <h1>Dashboard</h1>
+                <p>Welcome back! Here's what's happening today.</p>
+            </div>
+
+            <!-- Dashboard Statistics -->
+            <div class="dashboard-stats">
+                <!-- Stats will be populated by JavaScript -->
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- Quick Actions -->
+                <div class="card quick-actions">
+                    <h3>Quick Actions</h3>
+                    <div class="action-buttons">
+                        <a href="booking.html" class="btn btn-primary">
+                            <i class="fas fa-calendar-plus"></i>
+                            Schedule Meeting
+                        </a>
+                        <button class="btn btn-secondary" onclick="joinMeeting()">
+                            <i class="fas fa-video"></i>
+                            Join Now
+                        </button>
+                        <a href="minutes.html" class="btn btn-outline">
+                            <i class="fas fa-file-alt"></i>
+                            View Minutes
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Upcoming Meetings -->
+                <div class="card upcoming-meetings">
+                    <h3>Upcoming Meetings</h3>
+                    <div class="meetings-list" id="upcomingMeetingsList">
+                        <!-- Meetings will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Room Availability -->
+                <div class="card room-availability">
+                    <h3>Room Availability</h3>
+                    <div class="availability-grid" id="availabilityGrid">
+                        <!-- Room availability will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Notifications -->
+                <div class="card notifications">
+                    <h3>Notifications</h3>
+                    <div class="notifications-list" id="notificationsList">
+                        <!-- Notifications will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Overlay -->
+    <div id="modalOverlay" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">Modal Title</h3>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Modal content will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/router.js"></script>
+    <script src="demo-data.js"></script>
+</body>
+</html> 

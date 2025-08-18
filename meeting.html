@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Active Meeting - Meeting Room Booking System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Active Meeting Screen -->
+    <div id="meetingScreen" class="screen active">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <i class="fas fa-building"></i>
+                <span>MeetingHub</span>
+            </div>
+            
+            <div class="nav-menu">
+                <a href="dashboard.html" class="nav-link" data-screen="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </a>
+                <a href="booking.html" class="nav-link" data-screen="booking">
+                    <i class="fas fa-calendar-plus"></i>
+                    Book Meeting
+                </a>
+                <a href="minutes.html" class="nav-link" data-screen="minutes">
+                    <i class="fas fa-file-alt"></i>
+                    Minutes
+                </a>
+                <a href="minutes-review.html" class="nav-link" data-screen="minutes-review">
+                    <i class="fas fa-search"></i>
+                    Review
+                </a>
+                <a href="admin.html" class="nav-link" data-screen="admin">
+                    <i class="fas fa-cog"></i>
+                    Admin
+                </a>
+            </div>
+            
+            <div class="nav-user">
+                <div class="user-info">
+                    <span id="userName">John Doe</span>
+                    <small id="userRole">Manager</small>
+                </div>
+                <button class="btn btn-outline btn-sm" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <div class="meeting-header">
+                <h1 id="meetingTitle">Team Standup Meeting</h1>
+                <p id="meetingTime">Today at 9:00 AM - 10:00 AM</p>
+            </div>
+
+            <div class="meeting-container">
+                <div class="meeting-info">
+                    <div class="meeting-details">
+                        <h3>Meeting Details</h3>
+                        <div class="detail-item">
+                            <i class="fas fa-users"></i>
+                            <span>Attendees: <span id="meetingAttendees">John Doe, Jane Smith, Mike Johnson</span></span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Room: <span id="meetingRoom">Conference Room A</span></span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-clock"></i>
+                            <span>Duration: <span id="meetingDuration">1 hour</span></span>
+                        </div>
+                    </div>
+
+                    <div class="meeting-controls">
+                        <div class="timer-section">
+                            <h4>Meeting Timer</h4>
+                            <div class="timer" id="meetingTimer">00:00:00</div>
+                            <div class="timer-controls">
+                                <button class="btn btn-primary" id="startTimer">
+                                    <i class="fas fa-play"></i>
+                                    Start
+                                </button>
+                                <button class="btn btn-secondary" id="pauseTimer">
+                                    <i class="fas fa-pause"></i>
+                                    Pause
+                                </button>
+                                <button class="btn btn-outline" id="resetTimer">
+                                    <i class="fas fa-redo"></i>
+                                    Reset
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="meeting-actions">
+                            <h4>Quick Actions</h4>
+                            <button class="btn btn-primary" onclick="openMinutes()">
+                                <i class="fas fa-file-alt"></i>
+                                Take Notes
+                            </button>
+                            <button class="btn btn-secondary" onclick="shareScreen()">
+                                <i class="fas fa-desktop"></i>
+                                Share Screen
+                            </button>
+                            <button class="btn btn-outline" onclick="inviteParticipant()">
+                                <i class="fas fa-user-plus"></i>
+                                Invite Participant
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="meeting-sidebar">
+                    <div class="transcription-section">
+                        <h4>Live Transcription</h4>
+                        <label class="toggle-label">
+                            <input type="checkbox" id="transcriptionToggle">
+                            <span class="toggle-slider"></span>
+                            Enable Transcription
+                        </label>
+                        <div class="transcription-content" id="transcriptionContent">
+                            <p class="transcription-placeholder">Transcription will appear here when enabled...</p>
+                        </div>
+                    </div>
+
+                    <div class="integration-section">
+                        <h4>Video Conferencing</h4>
+                        <div class="integration-links">
+                            <a href="#" class="btn btn-outline btn-full" onclick="joinZoom()">
+                                <i class="fab fa-zoom"></i>
+                                Join Zoom
+                            </a>
+                            <a href="#" class="btn btn-outline btn-full" onclick="joinTeams()">
+                                <i class="fas fa-users"></i>
+                                Join Teams
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/meeting.js"></script>
+    <script src="js/router.js"></script>
+    <script src="demo-data.js"></script>
+</body>
+</html> 
