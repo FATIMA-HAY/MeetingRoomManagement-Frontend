@@ -68,7 +68,11 @@
                                 <input type="text" id="meetingTitle" name="meetingTitle" class="input-field" required>
                                 <span class="error-message" id="titleError"></span>
                             </div>
-                            
+                            <div class="form-group">
+                                <label for="meetingAgenda">Meeting Agenda *</label>
+                                <input type="text" id="meetingAgenda" name="meetingAgenda" class="input-field" required>
+                                <span class="error-message" id="AgendaError"></span>
+                            </div>
                             <div class="form-group">
                                 <label for="meetingDate">Date *</label>
                                 <input type="date" id="meetingDate" name="meetingDate" class="input-field" required>
@@ -82,7 +86,12 @@
                                 <input type="time" id="startTime" name="startTime" class="input-field" required>
                                 <span class="error-message" id="startTimeError"></span>
                             </div>
-                            
+                            <div class="form-group">
+                                <label for="endtTime">End Time *</label>
+                                <input type="time" id="endTime" name="endTime" class="input-field" required>
+                                <span class="error-message" id="endTimeError"></span>
+                            </div>
+                            <!--
                             <div class="form-group">
                                 <label for="duration">Duration *</label>
                                 <select id="duration" name="duration" class="input-field" required>
@@ -96,6 +105,8 @@
                                 </select>
                                 <span class="error-message" id="durationError"></span>
                             </div>
+                            -->
+                            
                         </div>
 
                         <div class="form-group">
@@ -109,12 +120,14 @@
 
                         <div class="form-group">
                             <label for="room">Room *</label>
-                            <select id="room" name="room" class="input-field" required>
+                            <select id="room" name="room" class="input-field" onclick="getRooms()" required>
                                 <option value="">Select a room</option>
-                                <option value="room1">Conference Room A (Capacity: 10)</option>
-                                <option value="room2">Conference Room B (Capacity: 15)</option>
-                                <option value="room3">Board Room (Capacity: 20)</option>
-                                <option value="room4">Small Meeting Room (Capacity: 6)</option>
+                                <!--
+                                    <option value="room1" data-id="1"> room A (Capacity: 10)</option>
+                                    <option value="room2" data-id="2"> room B (Capacity: 15)</option>
+                                    <option value="room3" data-id="3"> room C (Capacity: 20)</option>
+                                -->
+                                
                             </select>
                             <span class="error-message" id="roomError"></span>
                         </div>

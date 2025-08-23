@@ -150,18 +150,18 @@ class BookingManager {
                 }
             } else {
                 // Fallback to mock data if API not available
-                this.loadMockRooms();
+                //this.loadMockRooms();
             }
         } catch (error) {
             console.error('Error loading rooms:', error);
             // Fallback to mock data
-            this.loadMockRooms();
+           // this.loadMockRooms();
         }
 
         this.updateRoomOptions();
     }
 
-    loadMockRooms() {
+    /*loadMockRooms() {
         // Fallback mock data
         this.rooms = [
             { 
@@ -197,7 +197,7 @@ class BookingManager {
                 features: ['whiteboard']
             }
         ];
-    }
+    }*/
 
     async loadAvailabilityPreview() {
         const dateInput = document.getElementById('meetingDate');
@@ -466,6 +466,8 @@ class BookingManager {
     }
 
     validateRoom(roomId) {
+        this.rooms= getRooms();
+        console.log("Rooms:".this.rooms);
         if (!roomId) {
             this.showFieldError('roomError', 'Please select a room');
             return false;
@@ -477,7 +479,7 @@ class BookingManager {
             return false;
         }
         
-        if (selectedRoom.status !== 'available') {
+        if (selectedRoom.roomStatus !== 'Available') {
             this.showFieldError('roomError', 'Selected room is not available');
             return false;
         }
@@ -727,24 +729,7 @@ class BookingManager {
     }
 
     // Public methods for external access
-    getRooms() {
-    const authToken= localStorage.getItem('authToken');
-    const apiUrl="https://localhost:7209/api/Room/GetRoom"
-    try{
-        const res=fetch(apiUrl,{
-            method:'GET',
-            headers:{
-                'Authorization':`Bearer ${authToken}`,
-                'Content-Type':'application/json'
-            }
-        });
-        if(!res.okay)throw new Error("Connecting Failed or Unauthorized access");
-        const room=res.JSON();
-        return room
-    }catch(error){
-        console.error(error);
-    }
-    }
+   
 
     getMeetings() {
         return this.meetings;
@@ -767,12 +752,44 @@ function addAttendee() {
                 'Content-Type':'application/json'
             }
         });
-        if(!res.okay)throw new Error("Connecting Failed or Unauthorized access");
+        if(!res.ok)throw new Error("Connecting Failed or Unauthorized access");
     }catch(error){
         console.error(error);
     } 
 }
-
+let roomloaded=false;
+async function getRooms() {
+    if(roomloaded)return;
+    const authToken= localStorage.getItem('authToken');
+    const apiUrl="https://localhost:7209/api/Room/GetRoom"
+    try{
+        const res=await fetch(apiUrl,{
+            method:'GET',
+            headers:{
+                'Authorization':`Bearer ${authToken}`,
+                'Content-Type':'application/json'
+            }
+        });
+        console.log(res.status,res.statusText);
+        if(!res.ok)throw new Error("Connecting Failed or Unauthorized access");
+        const rooms=await res.json();
+        this.rooms=rooms.rooms;
+        console.log(this.rooms);
+        let select=document.getElementById("room");
+        rooms.rooms.forEach(room=>{
+            let option= document.createElement("option");
+            option.value=room.id;
+            option.textContent=room.name;
+            select.appendChild(option);
+        })
+        roomloaded=true
+        return this.rooms;
+    }catch(error){
+        console.error(error);
+        return [];
+    }
+    }
+    document.addEventListener("DOMContentLoaded",function(){getRooms();});
 function removeAttendee(email) {
     const authToken= localStorage.getItem('authToken');
     const apiUrl="https://localhost:7209/api/Attendees/DeleteAttendee"
@@ -792,13 +809,38 @@ function removeAttendee(email) {
 function BookMeeting(){
     const authToken= localStorage.getItem('authToken');
     const apiUrl="https://localhost:7209/api/Booking/AddBookings"
+    const title=document.getElementById('meetingTitle').value;
+    const agenda=document.getElementById('meetingAgenda').value
+    const startTime=document.getElementById('startTime').value;
+    const endTime=document.getElementById('endTime').value;
+    const date=document.getElementById('meetingDate').value;
+    const roomSelect=document.getElementById('room');
+    const payload=JSON.parse(atob(token.split('.')[1]));
+    const UserId=payload.id;
+    const attendees=document.getElementById('attendeeInput');
+    const selectedRoomId=roomSelect.value;
+    /*roomSelect.addEventListener("change",function(){
+        const selectedOption=this.options[this.selectedIndex];
+        const roomId=selectedOption.dataset.id;
+    });*/
+    let Payload={
+        title:title,
+        agenda:agenda,
+        startTime: startTime,
+        endTime:endTime,
+        date:date,
+        attendeesEmail:attendees,
+        roomId:selectedRoomId,
+        createdBy:UserId
+    }
     try{
         const res=fetch(apiUrl,{
             method:'POST',
             headers:{
                 'Authorization':`Bearer ${authToken}`,
                 'Content-Type':'application/json'
-            }
+            },
+            body: JSON.stringify(Payload)
         });
         if(!res.okay)throw new Error("Connecting Failed or Unauthorized access");
     }catch(error){

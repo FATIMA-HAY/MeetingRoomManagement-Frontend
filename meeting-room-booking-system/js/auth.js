@@ -63,13 +63,13 @@
             }
 
             // Forgot password
-            const forgotPasswordLink = document.querySelector('.forgot-password');
+            /*const forgotPasswordLink = document.querySelector('.forgot-password');
             if (forgotPasswordLink) {
                 forgotPasswordLink.addEventListener('click', (e) => {
                     e.preventDefault();
                     this.showForgotPasswordModal();
                 });
-            }
+            }*/
         }
 
         async handleLoginSubmit() {

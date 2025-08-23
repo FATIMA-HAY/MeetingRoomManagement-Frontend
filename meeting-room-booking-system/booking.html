@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
+<body >
     <!-- Meeting Booking Screen -->
     <div id="bookingScreen" class="screen active">
         <nav class="navbar">
@@ -30,6 +30,10 @@
                 <a href="minutes.html" class="nav-link" data-screen="minutes">
                     <i class="fas fa-file-alt"></i>
                     Minutes
+                </a>
+                <a href="minutes-review.html" class="nav-link" data-screen="minutes-review">
+                    <i class="fas fa-search"></i>
+                    Review
                 </a>
                 <a href="admin.html" class="nav-link" data-screen="admin">
                     <i class="fas fa-cog"></i>
@@ -64,7 +68,11 @@
                                 <input type="text" id="meetingTitle" name="meetingTitle" class="input-field" required>
                                 <span class="error-message" id="titleError"></span>
                             </div>
-                            
+                            <div class="form-group">
+                                <label for="meetingAgenda">Meeting Agenda *</label>
+                                <input type="text" id="meetingAgenda" name="meetingAgenda" class="input-field" required>
+                                <span class="error-message" id="AgendaError"></span>
+                            </div>
                             <div class="form-group">
                                 <label for="meetingDate">Date *</label>
                                 <input type="date" id="meetingDate" name="meetingDate" class="input-field" required>
@@ -78,7 +86,12 @@
                                 <input type="time" id="startTime" name="startTime" class="input-field" required>
                                 <span class="error-message" id="startTimeError"></span>
                             </div>
-                            
+                            <div class="form-group">
+                                <label for="endtTime">End Time *</label>
+                                <input type="time" id="endTime" name="endTime" class="input-field" required>
+                                <span class="error-message" id="endTimeError"></span>
+                            </div>
+                            <!--
                             <div class="form-group">
                                 <label for="duration">Duration *</label>
                                 <select id="duration" name="duration" class="input-field" required>
@@ -92,6 +105,8 @@
                                 </select>
                                 <span class="error-message" id="durationError"></span>
                             </div>
+                            -->
+                            
                         </div>
 
                         <div class="form-group">
@@ -107,10 +122,12 @@
                             <label for="room">Room *</label>
                             <select id="room" name="room" class="input-field" required>
                                 <option value="">Select a room</option>
-                                <option value="room1">Conference Room A (Capacity: 10)</option>
-                                <option value="room2">Conference Room B (Capacity: 15)</option>
-                                <option value="room3">Board Room (Capacity: 20)</option>
-                                <option value="room4">Small Meeting Room (Capacity: 6)</option>
+                                <!--
+                                    <option value="room1" data-id="1"> room A (Capacity: 10)</option>
+                                    <option value="room2" data-id="2"> room B (Capacity: 15)</option>
+                                    <option value="room3" data-id="3"> room C (Capacity: 20)</option>
+                                -->
+                                
                             </select>
                             <span class="error-message" id="roomError"></span>
                         </div>
@@ -133,7 +150,7 @@
                             <a href="dashboard.html" class="btn btn-outline">
                                 Cancel
                             </a>
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary" onclick="BookMeeting()">
                                 <i class="fas fa-calendar-check"></i>
                                 Book Now
                             </button>
@@ -156,5 +173,6 @@
     <script src="js/auth.js"></script>
     <script src="js/booking.js"></script>
     <script src="js/router.js"></script>
+    <script src="demo-data.js"></script>
 </body>
 </html> 

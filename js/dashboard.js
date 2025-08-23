@@ -188,37 +188,37 @@ class DashboardManager {
     }
     async loadMeetings() {
         try {
-                const response= await this.GetUpcomingMeeting();
-                if (Array.isArray(response)) {
-                      this.meetings = response;
+                const response= await GetUpcomingMeeting();
+                if (response.success) {
+                      this.meetings = response.upcomingMeeting;
+                      console.log("Meetings:",this.meetings);
                 } else {
                  // Assume it's a single object and wrap it in an array
                  // to make it consistent with the rest of your code (e.g., `forEach`).
-                     this.meetings = [response];
+                    throw new error("Api response is not in the expected format or is empty")
+                    // this.meetings = [response];
                 }
         } catch (error) {
             console.error('Error loading meetings:', error);
+            this.meetings=[];
         }
         this.updateUpcomingMeetings(this.meetings);
     }
 
     async loadRooms() {
         try {
-            
-                const response=this.getRoomAvailability();    
-                if (response.success) {
-                    this.rooms = response.data || [];
-                } else {
-                    throw new Error(response.error || 'Failed to load rooms');
+                const response=await getRoomAvailability();   
+                if(response.success){
+                    this.rooms=response.rooms;
+                }else{
+                    throw new error("Api response is not in the expected format or is empty");
                 }
             }
         catch (error) {
             console.error('Error loading rooms:', error);
-            // Fallback to mock data
-            this.loadMockRooms();
+            
         }
-
-        this.updateRoomAvailability();
+        this.updateRoomAvailability(this.rooms);
     }
 
     loadMockRooms() {
@@ -283,25 +283,36 @@ class DashboardManager {
 
     updateUpcomingMeetings(meeting) {
         const container = document.getElementById('upcomingMeetingsList');
+        //console.log(meeting)
         if (!container) return;
-
+        const startTime = new Date(meeting.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const endTime = new Date(meeting.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         container.innerHTML = '';
+         // Add empty state if no meetings
         if(meeting.length==0){
             container.textContent="No Upcoming Meeting";
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-calendar-times"></i>
+                    <p>No upcoming meetings</p>
+                    <button class="btn btn-primary" onclick="window.location.href='booking.html'">
+                        <i class="fas fa-plus"></i> Schedule Meeting
+                    </button>
+                </div>
+            `;
             return;
         }
-        forEach(meeting => {
+        meeting.forEach( meeting => {
             const meetingElement = document.createElement('div');
             meetingElement.className = 'meeting-item';
            // meetingElement.dataset.meetingId = meeting.id;
-            
-            const timeUntil = this.getTimeUntilMeeting(meeting.date, meeting.startTime);
+            const timeUntil = this.getTimeUntilMeeting(meeting.date, startTime);
             const timeClass = this.getTimeClass(timeUntil);
             
             meetingElement.innerHTML = `
                 <div class="meeting-time">
-                    <div class="time">${meeting.startTime}</div>
-                    <div class="time">${meeting.endTime}</div>
+                    <div class="time">${startTime}</div>
+                    <div class="time">${endTime}</div>
                 </div>
                 <div class="meeting-details">
                     <div class="meeting-title">${meeting.title}</div>
@@ -321,51 +332,54 @@ class DashboardManager {
             `;
             
             container.appendChild(meetingElement);
-        });
-
-        // Add empty state if no meetings
-        if (sortedMeetings.length === 0) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-calendar-times"></i>
-                    <p>No upcoming meetings</p>
-                    <button class="btn btn-primary" onclick="window.location.href='booking.html'">
-                        <i class="fas fa-plus"></i> Schedule Meeting
-                    </button>
-                </div>
-            `;
-        }
+        });        
     }
 
-    updateRoomAvailability() {
+    updateRoomAvailability(rooms) {
         const container = document.getElementById('availabilityGrid');
         if (!container) return;
-
         container.innerHTML = '';
-        
-        this.rooms.forEach(room => {
-            const roomElement = document.createElement('div');
-            roomElement.className = `room-slot ${room.status}`;
-            roomElement.dataset.roomId = room.id;
-            
+        //console.log("Room Status:",rooms[0].roomStatus);
+        rooms.forEach( room => {
             const availabilityInfo = this.getRoomAvailabilityInfo(room);
-            
+            console.log(availabilityInfo);
+            const roomElement = document.createElement('div');
+            roomElement.className = `room-slot ${room.roomStatus}`;
+            //roomElement.dataset.roomId = room.id;
+            let roomFeaturesHtml = 'No specific features listed.';
+            if (room.features) {
+                const featuresArray = [];
+                for (const featureKey in room.features) {
+                    // تأكد أن الـ property هو خاص بالـ object وليس من الـ prototype chain
+                    if (room.features.hasOwnProperty(featureKey) && room.features[featureKey] === true) {
+                        // Capitalize the first letter for display (e.g., "projector" -> "Projector")
+                        featuresArray.push(`<span class="equipment-tag">${featureKey.charAt(0).toUpperCase() + featureKey.slice(1)}</span>`);
+                    }
+                }
+                if (featuresArray.length > 0) {
+                    roomFeaturesHtml = featuresArray.join('');
+                }
+            }
+            console.log(room);
             roomElement.innerHTML = `
-                <div class="room-header">
+                <div class="room-header"> 
                     <div class="room-name">${room.name}</div>
-                    <div class="room-status ${room.status}">${room.status}</div>
+                    <div class="room-status ${room.roomStatus}">${room.roomStatus}</div>
                 </div>
                 <div class="room-details">
                     <div class="room-capacity"><i class="fas fa-users"></i> ${room.capacity} people</div>
                     <div class="room-equipment">
-                        ${room.equipment.map(item => `<span class="equipment-tag">${item}</span>`).join('')}
+                        <i class="fas fa-desktop"></i> Features: ${roomFeaturesHtml}
+                    </div>
+                    <div class="room-location">
+                        <i class="fas fa-map-marker-alt"></i> Location: ${room.location}
                     </div>
                 </div>
                 <div class="room-availability">
                     ${availabilityInfo}
                 </div>
                 <div class="room-actions">
-                    <button class="btn btn-sm btn-primary" onclick="bookRoom('${room.id}')" ${room.status !== 'available' ? 'disabled' : ''}>
+                    <button class="btn btn-sm btn-primary" onclick="bookRoom('${room.id}')" ${room.roomStatus !== 'Available' ? 'disabled' : ''}>
                         <i class="fas fa-calendar-plus"></i> Book
                     </button>
                     <button class="btn btn-sm btn-outline" onclick="viewRoomDetails('${room.id}')">
@@ -375,6 +389,7 @@ class DashboardManager {
             `;
             
             container.appendChild(roomElement);
+            
         });
     }
 
@@ -468,17 +483,30 @@ class DashboardManager {
         }
     }
 
-    getRoomAvailabilityInfo(room) {
-        const apiUrl=''
-        if (room.status === 'available') {
+    getRoomAvailabilityInfo(rooms) {
+        if (rooms.roomStatus === 'Available') {
             return '<span class="availability-status available">Available Now</span>';
-        } else if (room.status === 'booked') {
-            const meeting = this.meetings.find(m => m.room === room.name);
+        } else if (rooms.roomStatus=== 'Booked') {
+            const meeting =this.meetings.find(m => m.roomId === rooms.id);
             if (meeting) {
-                return `<span class="availability-status booked">Booked until ${this.calculateEndTime(meeting.startTime, meeting.duration)}</span>`;
+            // Check if meeting.endTime exists and is a valid string
+            if (meeting.endTime && typeof meeting.endTime === 'string') {
+                const endTimeObject = new Date(meeting.endTime.trim()); // Create Date object from endTime string
+                if (!isNaN(endTimeObject.getTime())) { // Validate the Date object
+                    const formattedEndTime = endTimeObject.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    console.log(formattedEndTime);
+                    return `<span class=\"availability-status booked\">Booked until ${formattedEndTime}</span>`;
+                } else {
+                    console.warn(`Invalid meeting.endTime for meeting ID ${meeting.id}: '${meeting.endTime}'`);
+                    return "<span class=\"availability-status booked\">Booked (Invalid End Time)</span>";
+                }
+            } else {
+                console.warn(`meeting.endTime is missing or invalid for meeting ID ${meeting.id}`);
+                return "<span class=\"availability-status booked\">Booked (End Time Missing)</span>";
             }
-            return '<span class="availability-status booked">Booked</span>';
-        } else if (room.status === 'maintenance') {
+        }
+            return "<span class=\"availability-status booked\">Booked</span>";
+        } else if (room.roomStatus === 'maintenance') {
             return '<span class="availability-status maintenance">Under Maintenance</span>';
         }
         return '';
@@ -863,9 +891,6 @@ async function GetUpcomingMeeting() {
 async function getRoomAvailability() {
     const authToken= localStorage.getItem("authToken");
     const url="https://localhost:7209/api/Room/GetRoom"
-    if(!authToken){
-        console.error("No Token Found");
-    }
     try{
         const res=await fetch(url,{
             method:'GET',
@@ -876,6 +901,7 @@ async function getRoomAvailability() {
         });
         if(!res.ok)throw new Error("connecting failed or unauthorized access");
         const availableroom=await res.json();
+        console.log("RoomAvailability",availableroom);
         return availableroom;
     }catch(error){
         console.error(error);
@@ -883,4 +909,3 @@ async function getRoomAvailability() {
     }
 }
 window.addEventListener("DOMContentLoaded",GetTotalMeeting);
-document.addEventListener("DOMContentLoaded",loadMeetingsAndDisplay);

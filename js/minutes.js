@@ -271,20 +271,21 @@ class MinutesManager {
     }
 
     updateMeetingInfo() {
-        if (!this.currentMeeting) return;
+        const meetingData=GetMeetingTitleDate();
+        const meeting=meetingData[0];
+        if (!meeting) return;
 
         const titleElement = document.getElementById('minutesMeetingTitle');
         const dateElement = document.getElementById('minutesMeetingDate');
         const timeElement = document.getElementById('minutesMeetingTime');
         const roomElement = document.getElementById('minutesMeetingRoom');
 
-        if (titleElement) titleElement.textContent = this.currentMeeting.title;
-        if (dateElement) dateElement.textContent = this.currentMeeting.date;
+        if (titleElement) titleElement.textContent = meeting.title;
+        if (dateElement) dateElement.textContent = meeting.date;
         if (timeElement) {
-            const endTime = this.calculateEndTime(this.currentMeeting.startTime, this.currentMeeting.duration);
-            timeElement.textContent = `${this.currentMeeting.startTime} - ${endTime}`;
+            timeElement.textContent = `${meeting.startTime} - ${meeting.endTime}`;
         }
-        if (roomElement) roomElement.textContent = this.currentMeeting.room;
+        if (roomElement) roomElement.textContent = meeting.room;
     }
 
     updateAgendaDisplay() {
@@ -817,3 +818,25 @@ document.addEventListener('DOMContentLoaded', () => {
         window.minutesManager.loadFromStorage();
     }, 100);
 }); 
+async function GetMeetingTitleDate() {
+    const authToken= localStorage.getItem("authToken");
+    const url="https://localhost:7209/api/Bookings/GetBookings"
+    if(!authToken){
+        console.error("No Token Found");
+    }
+    try{
+        const res=await fetch(url,{
+            method:'GET',
+            headers:{
+                'Authorization':`Bearer ${authToken}`,
+                'Content-Type':'application/json'
+            }
+        });
+        if(!res.ok) throw new Error("Conneting Failed Or Unauthorized Access");
+        const response=res.json();
+        return response;
+    }catch(error){
+        console.error(Error);
+        return [];
+    }
+}

@@ -101,39 +101,29 @@ class MeetingManager {
 
     loadMeetingData() {
         // Get meeting data from global context or URL parameters
-        if (window.currentMeeting) {
-            this.currentMeeting = window.currentMeeting;
-        } else {
-            // Fallback to mock data
-            this.currentMeeting = {
-                id: 1,
-                title: 'Team Standup Meeting',
-                date: '2024-01-15',
-                startTime: '09:00',
-                duration: 60,
-                room: 'Conference Room A',
-                attendees: ['John Doe', 'Jane Smith', 'Mike Johnson'],
-                status: 'active'
-            };
-        }
+       try{
+         const res= GetMeetingTitleDate();
+         const meet=res;
 
-        this.updateMeetingDisplay();
+       }catch(error){
+            console.error(error);       }
+        
+        this.updateMeetingDisplay(meet);
     }
 
-    updateMeetingDisplay() {
-        if (!this.currentMeeting) return;
+    updateMeetingDisplay(meeting) {
+        if (!meeting) return;
 
         // Update meeting title
         const titleElement = document.getElementById('meetingTitle');
         if (titleElement) {
-            titleElement.textContent = this.currentMeeting.title;
+            titleElement.textContent = meeting.title;
         }
 
         // Update meeting time
         const timeElement = document.getElementById('meetingTime');
         if (timeElement) {
-            const endTime = this.calculateEndTime(this.currentMeeting.startTime, this.currentMeeting.duration);
-            timeElement.textContent = `Today at ${this.currentMeeting.startTime} - ${endTime}`;
+            timeElement.textContent = `Today at ${meeting.startTime} - ${meeting.endTime}`;
         }
 
         // Update attendees
@@ -145,13 +135,13 @@ class MeetingManager {
         // Update room
         const roomElement = document.getElementById('meetingRoom');
         if (roomElement) {
-            roomElement.textContent = this.currentMeeting.room;
+            roomElement.textContent = meeting.room;
         }
 
         // Update duration
         const durationElement = document.getElementById('meetingDuration');
         if (durationElement) {
-            durationElement.textContent = `${this.currentMeeting.duration} minutes`;
+            durationElement.textContent = `${meeting.endTime - meeting.startTime} minutes`;
         }
     }
 

@@ -63,13 +63,12 @@
             }
 
             // Forgot password
-            const forgotPasswordLink = document.querySelector('.forgot-password');
+           /*const forgotPasswordLink = document.querySelector('.forgot-password');
             if (forgotPasswordLink) {
                 forgotPasswordLink.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.showForgotPasswordModal();
+                    window.open("ForgotPassword.html")
                 });
-            }
+            }*/
         }
 
         async handleLoginSubmit() {
@@ -565,7 +564,29 @@
             }
         }
     }
-
+   /* async function ResetPassword() {
+            const apiUrl='https://localhost:7209/api/Authentication/ForgotPassword'
+            const email=document.getElementById("ResetEmail");
+            const password=document.getElementById("ResetPassword");
+            const pass2=document.getElementById("ConfirmResetPassword");
+            try{
+                const res=fetch(apiUrl,{
+                    method:'PUT',
+                    headers:{
+                        'Content-Type':'application/json',
+                      },
+                    body:JSON.stringify(email,password,pass2)
+            })
+                if(!res.ok)throw new error("Failed");
+                else{
+                    this.showToast('Login successful!', 'success');
+                }
+            }catch(error){
+                throw new error(error);
+            }
+            window.close();
+    }
+    document.getElementById("ForgotPassBtn").addEventListener("click",ResetPassword);*/
     // Initialize auth manager when DOM is loaded
     document.addEventListener('DOMContentLoaded', () => {
         window.authManager = new AuthManager();

@@ -44,7 +44,7 @@ class AdminManager {
         // Room management
         const addRoomBtn = document.getElementById('addRoomBtn');
         if (addRoomBtn) {
-            addRoomBtn.addEventListener('click', () => this.showAddRoomModal());
+            addRoomBtn.addEventListener('click', () => PostRoom());
         }
 
         const roomForm = document.getElementById('roomForm');
@@ -485,9 +485,9 @@ class AdminManager {
 
     showAddRoomModal() {
         const roomData = {
-            name: prompt('Enter room name:'),
             capacity: prompt('Enter room capacity:'),
-            location: prompt('Enter room location:')
+            location: prompt('Enter room location:'),
+            equipment:prompt('projector,video conference,white board...:'),
         };
 
         if (roomData.name && roomData.capacity && roomData.location) {
@@ -498,7 +498,6 @@ class AdminManager {
     addRoom(roomData) {
         const newRoom = {
             id: Date.now(),
-            name: roomData.name,
             capacity: parseInt(roomData.capacity),
             location: roomData.location,
             equipment: ['Whiteboard'],
@@ -731,6 +730,55 @@ class AdminManager {
     }
 }
 
+async function PostRoom() {
+    const container=document.getElementById("roomsList");
+    container.innerHTML=`
+        <form id="roomForm">
+            <input types="number" id="roomCapacity" placeholder="Room Capacity" required><br>
+            <input types="number" id="roomLocation" placeholder="Room Location" required><br>
+            <h4>Features</h4>
+            <label>
+                <input type="checkbox" id="projector" value="1">Projector
+            </label><br>
+            <label>
+                <input type="checkbox" id="VideoConference" value="2">VideoConference
+            </label><br>
+            <label>
+                <input type="checkbox" id="whiteboard" value="1">WhiteBoard
+            </label><br>
+            <button class="btn btn-primary" type="submit">Save Room</button>
+            <button class="btn btn-ghost" type="cancel">Cancel</button>
+        </form>
+    `
+    document.getElementById("roomForm").addEventListener('submit',function(e){
+        const authToken=localStorage.getItem('authToken');
+        const url="https://localhost:7209/api/Room/AddRoom"
+        const payload=JSON.parse(atob(token.split('.')[1]));
+        const UserId=payload.id;
+        const roomData={
+            userId: userId,
+            roomCapacity: parseInt(document.getElementById("roomCapacity").value),
+            roomLocation: parseInt(document.getElementById("roomLocation").value),
+            features: {
+                projector:document.getElementById('projector').checked,
+                videoconference:document.getElementById('VideoConference').checked,
+                whiteBoard:document.getElementById('whiteboard').checked
+                }
+        };
+        fetch (url,{
+            method:'POSt',
+            headers:{
+                'Authorization':`Bearer ${authToken}`,
+                'Contebt-Type':'application/json'
+            },
+            body:JSON.stringify(roomData)
+        }).then(res=>res.json())
+          .then(data=>{
+            alert('Room added successfully');
+            container.innerHTML="";
+          }).catch(console.error(error));
+    })
+}
 // Initialize admin manager when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.adminManager = new AdminManager();
