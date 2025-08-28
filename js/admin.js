@@ -733,50 +733,107 @@ class AdminManager {
 async function PostRoom() {
     const container=document.getElementById("roomsList");
     container.innerHTML=`
-        <form id="roomForm">
-            <input types="number" id="roomCapacity" placeholder="Room Capacity" required><br>
-            <input types="number" id="roomLocation" placeholder="Room Location" required><br>
-            <h4>Features</h4>
-            <label>
-                <input type="checkbox" id="projector" value="1">Projector
-            </label><br>
-            <label>
-                <input type="checkbox" id="VideoConference" value="2">VideoConference
-            </label><br>
-            <label>
-                <input type="checkbox" id="whiteboard" value="1">WhiteBoard
-            </label><br>
-            <button class="btn btn-primary" type="submit">Save Room</button>
-            <button class="btn btn-ghost" type="cancel">Cancel</button>
-        </form>
+         <h2 class="text-3xl font-extrabold text-gray-900 mb-6 text-center">Room Management</h2>
+      <form id="roomForm" class="space-y-6">
+        <div>
+          <label for="roomName" class="block text-sm font-medium text-gray-700 mb-1">Room Name</label>
+          <input
+            type="text"
+            id="roomName"
+            placeholder="Room Name"
+            required
+            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-base"
+          />
+        </div>
+        <div>
+          <label for="roomCapacity" class="block text-sm font-medium text-gray-700 mb-1">Room Capacity</label>
+          <input
+            type="number"
+            id="roomCapacity"
+            placeholder="Room Capacity"
+            required
+            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-base"
+          />
+        </div>
+        <div>
+          <label for="roomLocation" class="block text-sm font-medium text-gray-700 mb-1">Room Location</label>
+          <input
+            type="text"
+            id="roomLocation"
+            placeholder="Room Location"
+            required
+            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-base"
+          />
+        </div>
+
+        <h4 class="text-lg font-semibold text-gray-800 pt-2 border-t border-gray-200 pt-4">Features</h4>
+        <div class="space-y-3">
+          <label class="flex items-center">
+            <input type="checkbox" id="projector" value="1" class="form-checkbox h-5 w-5 text-blue-600 rounded-md focus:ring-blue-500" />
+            <span class="ml-2 text-gray-700 text-base">Projector</span>
+          </label>
+          <label class="flex items-center">
+            <input type="checkbox" id="videoConference" value="2" class="form-checkbox h-5 w-5 text-blue-600 rounded-md focus:ring-blue-500" />
+            <span class="ml-2 text-gray-700 text-base">VideoConference</span>
+          </label>
+          <label class="flex items-center">
+            <input type="checkbox" id="whiteboard" value="1" class="form-checkbox h-5 w-5 text-blue-600 rounded-md focus:ring-blue-500" />
+            <span class="ml-2 text-gray-700 text-base">WhiteBoard</span>
+          </label>
+        </div>
+
+        <div class="flex justify-end space-x-4 mt-8">
+          <button type="submit" class="btn btn-primary px-6 py-3 text-white font-semibold bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg shadow-md transform transition duration-200 ease-in-out hover:scale-105">
+            Save Room
+          </button>
+          <button type="button" class="btn btn-ghost px-6 py-3 text-gray-700 font-medium bg-gray-200 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 rounded-lg shadow-sm transition duration-150 ease-in-out">
+            Cancel
+          </button>
+        </div>
+      </form>
     `
-    document.getElementById("roomForm").addEventListener('submit',function(e){
+    document.getElementById("roomForm").addEventListener('submit',async function(e){
+        e.preventDefault();
         const authToken=localStorage.getItem('authToken');
-        const url="https://localhost:7209/api/Room/AddRoom"
-        const payload=JSON.parse(atob(token.split('.')[1]));
-        const UserId=payload.id;
+        if (!authToken) {
+        console.error("Authentication token not found.");
+        console.log(authToken);
+        return;
+    }
+        const payload=JSON.parse(atob(authToken.split('.')[1]));
+        const UserId= payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+        const url=`https://localhost:7209/api/Room/AddRoom?UserID=${parseInt(UserId)}`
+        console.log("User Id:",UserId);
         const roomData={
-            userId: userId,
-            roomCapacity: parseInt(document.getElementById("roomCapacity").value),
-            roomLocation: parseInt(document.getElementById("roomLocation").value),
+            createdBy: parseInt(UserId),
+            name:document.getElementById("roomName").value,
+            capacity: parseInt(document.getElementById("roomCapacity").value),
+            location: parseInt(document.getElementById("roomLocation").value),
             features: {
                 projector:document.getElementById('projector').checked,
-                videoconference:document.getElementById('VideoConference').checked,
+                videoConference:document.getElementById('videoConference').checked,
                 whiteBoard:document.getElementById('whiteboard').checked
                 }
         };
-        fetch (url,{
-            method:'POSt',
+        console.log(roomData);
+        try{
+            const res=await fetch (url,{
+            method:'POST',
             headers:{
                 'Authorization':`Bearer ${authToken}`,
-                'Contebt-Type':'application/json'
+                'Content-Type':'application/json'
             },
             body:JSON.stringify(roomData)
-        }).then(res=>res.json())
-          .then(data=>{
-            alert('Room added successfully');
-            container.innerHTML="";
-          }).catch(console.error(error));
+        })
+        .then(response => response.json())
+        .then(data => console.log('Room created successfully:', data))
+        .catch(error => console.error('Error creating room:', error));
+         if(!res.ok)throw new Error("Connecting Failed or Unauthorized access");
+         const result = await res.json();
+        console.log("Room added successfully:", result);
+        }catch(error){
+             console.error("An error occured",error);
+        }
     })
 }
 // Initialize admin manager when DOM is loaded

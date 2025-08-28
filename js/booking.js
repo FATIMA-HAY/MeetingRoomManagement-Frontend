@@ -354,7 +354,7 @@ class BookingManager {
         this.updateRoomRecommendations();
     }
 
-    updateRoomRecommendations() {
+    async updateRoomRecommendations() {
         const roomSelect = document.getElementById('room');
         if (!roomSelect) return;
 
@@ -362,7 +362,7 @@ class BookingManager {
         
         // Update room options with capacity indicators
         roomSelect.innerHTML = '<option value="">Select a room</option>';
-        
+        this.rooms=await getRooms();
         this.rooms.forEach(room => {
             if (room.status === 'available') {
                 const option = document.createElement('option');
@@ -464,10 +464,9 @@ class BookingManager {
         
         return true;
     }
-
-    validateRoom(roomId) {
-        this.rooms= getRooms();
-        console.log("Rooms:".this.rooms);
+    async validateRoom(roomId) {
+        this.rooms= await getRooms();
+        console.log("Rooms:",this.rooms);
         if (!roomId) {
             this.showFieldError('roomError', 'Please select a room');
             return false;
@@ -773,17 +772,17 @@ async function getRooms() {
         console.log(res.status,res.statusText);
         if(!res.ok)throw new Error("Connecting Failed or Unauthorized access");
         const rooms=await res.json();
-        this.rooms=rooms.rooms;
-        console.log(this.rooms);
         let select=document.getElementById("room");
         rooms.rooms.forEach(room=>{
             let option= document.createElement("option");
             option.value=room.id;
             option.textContent=room.name;
             select.appendChild(option);
+            //console.log("text content:",option.textContent)
         })
         roomloaded=true
-        return this.rooms;
+        console.log("RoomsS:",rooms.rooms);
+        return rooms.rooms;
     }catch(error){
         console.error(error);
         return [];
