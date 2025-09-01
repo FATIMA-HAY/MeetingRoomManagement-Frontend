@@ -363,8 +363,9 @@ class BookingManager {
         // Update room options with capacity indicators
         roomSelect.innerHTML = '<option value="">Select a room</option>';
         this.rooms=await getRooms();
+        console.log("UpdateRecommendationRoom Rooms:",this.rooms)
         this.rooms.forEach(room => {
-            if (room.status === 'available') {
+            if (room.roomStatus=== 'available') {
                 const option = document.createElement('option');
                 option.value = room.id;
                 
@@ -450,8 +451,27 @@ class BookingManager {
         
         return true;
     }
+    validateEndTime(endTime) {
+        if (!endTime) {
+            this.showFieldError('endTimeError', 'End time is required');
+            return false;
+        }
+        
+        const dateInput = document.getElementById('meetingDate');
+        if (dateInput && dateInput.value) {
+            const selectedDateTime = new Date(`${dateInput.value} ${endTime}`);
+            const now = new Date();
+            
+            if (selectedDateTime <= now) {
+                this.showFieldError('endTimeError', 'End time must be in the future');
+                return false;
+            }
+        }
+        
+        return true;
+    }
 
-    validateDuration(duration) {
+    /*validateDuration(duration) {
         if (!duration) {
             this.showFieldError('durationError', 'Duration is required');
             return false;
@@ -463,16 +483,16 @@ class BookingManager {
         }
         
         return true;
-    }
+    }*/
     async validateRoom(roomId) {
-        this.rooms= await getRooms();
-        console.log("Rooms:",this.rooms);
+        const roomData=await getRooms();
+        console.log("Actual rooms array:", roomData.rooms);
         if (!roomId) {
             this.showFieldError('roomError', 'Please select a room');
             return false;
         }
         
-        const selectedRoom = this.rooms.find(r => r.id === roomId);
+        const selectedRoom = roomData.rooms.find(r => r.id === roomId);
         if (!selectedRoom) {
             this.showFieldError('roomError', 'Invalid room selected');
             return false;
@@ -781,11 +801,11 @@ async function getRooms() {
             //console.log("text content:",option.textContent)
         })
         roomloaded=true
-        console.log("RoomsS:",rooms.rooms);
-        return rooms.rooms;
+        console.log("RoomsS:",rooms);
+        return rooms;
     }catch(error){
         console.error(error);
-        return [];
+        return { success: false, rooms: [] }; 
     }
     }
     document.addEventListener("DOMContentLoaded",function(){getRooms();});

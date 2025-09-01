@@ -731,7 +731,7 @@ class AdminManager {
 }
 
 async function PostRoom() {
-    const container=document.getElementById("roomsList");
+    /*const container=document.getElementById("roomsList");
     container.innerHTML=`
          <h2 class="text-3xl font-extrabold text-gray-900 mb-6 text-center">Room Management</h2>
       <form id="roomForm" class="space-y-6">
@@ -791,9 +791,8 @@ async function PostRoom() {
           </button>
         </div>
       </form>
-    `
-    document.getElementById("roomForm").addEventListener('submit',async function(e){
-        e.preventDefault();
+    `*/
+    
         const authToken=localStorage.getItem('authToken');
         if (!authToken) {
         console.error("Authentication token not found.");
@@ -806,13 +805,13 @@ async function PostRoom() {
         console.log("User Id:",UserId);
         const roomData={
             createdBy: parseInt(UserId),
-            name:document.getElementById("roomName").value,
-            capacity: parseInt(document.getElementById("roomCapacity").value),
-            location: parseInt(document.getElementById("roomLocation").value),
+            name:document.getElementById("addRoomName").value,
+            capacity: parseInt(document.getElementById("addRoomCapacity").value),
+            location: parseInt(document.getElementById("addRoomLocation").value),
             features: {
-                projector:document.getElementById('projector').checked,
-                videoConference:document.getElementById('videoConference').checked,
-                whiteBoard:document.getElementById('whiteboard').checked
+                projector:document.getElementById('addProjector').checked,
+                videoConference:document.getElementById('addVideoConference').checked,
+                whiteBoard:document.getElementById('addWhiteBoard').checked
                 }
         };
         console.log(roomData);
@@ -834,8 +833,61 @@ async function PostRoom() {
         }catch(error){
              console.error("An error occured",error);
         }
-    })
-}
+    }
+    async function PutRoom() {
+        const authToken=localStorage.getItem('authToken');
+        const RoomId=document.getElementById("updateRoomId").value;
+        const url=`https://localhost:7209/api/Room/UpdateRoom?RoomId=${RoomId}`
+        const RoomName=document.getElementById("updateRoomName").value;
+        const RoomCapacity=document.getElementById("updateRoomCapacity").value;
+        const RoomLocation=document.getElementById("updateRoomLocation").value;
+        const roomData={
+            name:RoomName,
+            capacity:parseInt(RoomCapacity),
+            location:parseInt(RoomLocation),
+            features:{
+                projector:document.getElementById('addProjector').checked,
+                videoConference:document.getElementById('addVideoConference').checked,
+                whiteBoard:document.getElementById('addWhiteBoard').checked
+            }
+        };
+        console.log(roomData);
+        try{
+            const res=await fetch(url,{
+                method:'Put',
+                headers:{
+                    'Authorization':`Bearer ${authToken}`,
+                    'Content-Type':'application/json'
+                },
+                body:JSON.stringify(roomData)
+            })
+             if(!res.ok)throw new Error("Connecting Failed or Unauthorized access");
+             const result = await res.json();
+             console.log("Room added successfully:", result);
+            }catch(error){
+             console.error("An error occured",error);
+        }
+    }
+    async function DeleteRoom() {
+        const authToken=localStorage.getItem('authToken');
+        const RoomId=document.getElementById("deleteRoomId").value;
+        const url=`https://localhost:7209/api/Room/DeleteRoom?RoomId=${RoomId}`;
+        try{
+            const res=await fetch(url,{
+                method:'Delete',
+                headers:{
+                    'Authorization':`Bearer ${authToken}`,
+                    'Content-Type':'application/json'
+                },
+            })
+             if(!res.ok)throw new Error("Connecting Failed or Unauthorized access");
+             const result = await res.json();
+             console.log("Room Deleted successfully:", result);
+            }catch(error){
+             console.error("An error occured",error);
+        }
+        
+    }
 // Initialize admin manager when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.adminManager = new AdminManager();

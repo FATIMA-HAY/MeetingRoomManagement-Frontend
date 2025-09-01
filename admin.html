@@ -67,21 +67,223 @@
                 </div>
 
                 <!-- Room Management Tab -->
-                <div class="tab-content active" id="roomsTab">
-                    <div class="room-management">
-                        <div class="room-header">
-                            <h3>Room Management</h3>
-                            <button class="btn btn-primary" onclick="PostRoom()">
-                                <i class="fas fa-plus"></i>
-                                Add Room
-                            </button>
-                        </div>
-                        
-                        <div class="rooms-list" id="roomsList">
-                            <!-- Rooms will be populated by JavaScript -->
+                <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background-color: #f3f4f6;
+        }
+        .form-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .form-container.active {
+            max-height: 500px; /* Adjust as needed, should be larger than form height */
+            transition: max-height 0.3s ease-in;
+        }
+        /* Basic styling for the forms to look distinct */
+        .form-card {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 1rem;
+            width: 100%;
+            max-width: 600px; /* Limit width for better presentation */
+        }
+        input[type="text"], input[type="number"] {
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            width: 100%;
+            margin-bottom: 0.75rem;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+        .btn-secondary {
+            background-color: #6b7280;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+        .btn-danger {
+            background-color: #ef4444;
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+        .btn-add {
+            background-color: #22c55e;
+            color: white;
+        }
+        .btn-add:hover {
+            background-color: #16a34a;
+        }
+    </style>
+</head>
+<body class="p-8">
+
+    <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
+        <!-- Navigation/Header -->
+        
+
+        <h1 class="text-3xl font-bold mb-6 text-gray-800">Room Management</h1>
+
+        <!-- Action Buttons -->
+        <div class="flex space-x-4 mb-8">
+            <button id="addRoomBtn" class="btn btn-add flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+                </svg>
+                Add Room
+            </button>
+            <button id="updateRoomBtn" class="btn btn-primary">Update Room</button>
+            <button id="deleteRoomBtn" class="btn btn-danger">Delete Room</button>
+        </div>
+
+        <!-- Add Room Form (Initially visible based on the screenshot, but can be toggled) -->
+        <div id="addRoomFormContainer" class="form-container active">
+            <div class="form-card">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Add New Room</h2>
+                <!-- BEGIN MODIFICATION: Wrap form elements in a <form> tag -->
+                <form id="addRoomForm">
+                    <div class="mb-4">
+                        <label for="addRoomName" class="block text-gray-700 text-sm font-bold mb-2">Room Name</label>
+                        <input type="text" id="addRoomName" placeholder="Room Name" class="focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="mb-4">
+                        <label for="addRoomCapacity" class="block text-gray-700 text-sm font-bold mb-2">Room Capacity</label>
+                        <input type="number" id="addRoomCapacity" placeholder="Room Capacity" class="focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="mb-4">
+                        <label for="addRoomLocation" class="block text-gray-700 text-sm font-bold mb-2">Room Location</label>
+                        <input type="text" id="addRoomLocation" placeholder="Room Location" class="focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Features</label>
+                        <div class="flex items-center space-x-4">
+                            <input type="checkbox" id="addProjector" class="rounded text-blue-500 focus:ring-blue-500">
+                            <label for="addProjector" class="text-gray-700">Projector</label>
+                            <input type="checkbox" id="addVideoConference" class="rounded text-blue-500 focus:ring-blue-500">
+                            <label for="addVideoConference" class="text-gray-700">VideoConference</label>
+                            <input type="checkbox" id="addWhiteBoard" class="rounded text-blue-500 focus:ring-blue-500">
+                            <label for="addWhiteBoard" class="text-gray-700">WhiteBoard</label>
                         </div>
                     </div>
+                    <div class="flex space-x-4">
+                        <!-- Changed to type="submit" to trigger form submission -->
+                        <button type="submit" class="btn btn-primary" onclick="PostRoom()">Save Room</button>
+                        <button type="button" class="btn btn-secondary" onclick="toggleForm('addRoomFormContainer')">Cancel</button>
+                    </div>
+                </form>
+                <!-- END MODIFICATION -->
+            </div>
+        </div>
+
+        <!-- Update Room Form (Initially hidden) -->
+        <div id="updateRoomFormContainer" class="form-container">
+            <div class="form-card">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Update Existing Room</h2>
+                <div class="mb-4">
+                    <label for="updateRoomId" class="block text-gray-700 text-sm font-bold mb-2">Room ID (to update)</label>
+                    <input type="text" id="updateRoomId" placeholder="Enter Room ID" class="focus:ring-blue-500 focus:border-blue-500">
                 </div>
+                <div class="mb-4">
+                    <label for="updateRoomName" class="block text-gray-700 text-sm font-bold mb-2">New Room Name</label>
+                    <input type="text" id="updateRoomName" placeholder="New Room Name" class="focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="mb-4">
+                    <label for="updateRoomCapacity" class="block text-gray-700 text-sm font-bold mb-2">New Room Capacity</label>
+                    <input type="number" id="updateRoomCapacity" placeholder="New Room Capacity" class="focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="mb-4">
+                    <label for="updateRoomLocation" class="block text-gray-700 text-sm font-bold mb-2">New Room Location</label>
+                    <input type="text" id="updateRoomLocation" placeholder="New Room Location" class="focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Features</label>
+                    <div class="flex items-center space-x-4">
+                        <input type="checkbox" id="updateProjector" class="rounded text-blue-500 focus:ring-blue-500">
+                        <label for="updateProjector" class="text-gray-700">Projector</label>
+                        <input type="checkbox" id="updateVideoConference" class="rounded text-blue-500 focus:ring-blue-500">
+                        <label for="updateVideoConference" class="text-gray-700">VideoConference</label>
+                        <input type="checkbox" id="updateWhiteBoard" class="rounded text-blue-500 focus:ring-blue-500">
+                        <label for="updateWhiteBoard" class="text-gray-700">WhiteBoard</label>
+                    </div>
+                </div>
+                <div class="flex space-x-4">
+                    <button class="btn btn-primary" onclick="PutRoom()">Save Changes</button>
+                    <button type="button" class="btn btn-secondary" onclick="toggleForm('updateRoomFormContainer')">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Room Form (Initially hidden) -->
+        <div id="deleteRoomFormContainer" class="form-container">
+            <div class="form-card">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Delete Room</h2>
+                <div class="mb-4">
+                    <label for="deleteRoomId" class="block text-gray-700 text-sm font-bold mb-2">Room ID (to delete)</label>
+                    <input type="text" id="deleteRoomId" placeholder="Enter Room ID to delete" class="focus:ring-red-500 focus:border-red-500">
+                </div>
+                <div class="flex space-x-4">
+                    <button class="btn btn-danger" onclick="DeleteRoom()">Confirm Delete</button>
+                    <button type="button" class="btn btn-secondary" onclick="toggleForm('deleteRoomFormContainer')">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Function to toggle the visibility of a form container
+        function toggleForm(formId) {
+            const formContainer = document.getElementById(formId);
+            formContainer.classList.toggle('active');
+
+            // Optionally, close other forms when one opens,
+            // or when a form is explicitly closed by its button
+            const allFormContainers = document.querySelectorAll('.form-container');
+            allFormContainers.forEach(container => {
+                if (container.id !== formId && container.classList.contains('active')) {
+                    container.classList.remove('active');
+                }
+            });
+        }
+
+        // Event Listeners for the main action buttons
+        document.getElementById('addRoomBtn').addEventListener('click', function() {
+            toggleForm('addRoomFormContainer');
+        });
+
+        document.getElementById('updateRoomBtn').addEventListener('click', function() {
+            toggleForm('updateRoomFormContainer');
+        });
+
+        document.getElementById('deleteRoomBtn').addEventListener('click', function() {
+            toggleForm('deleteRoomFormContainer');
+        });
+
+        // Initially show the Add Room form as per the user's screenshot
+        window.onload = function() {
+            // No action needed here, as 'addRoomFormContainer' already has 'active' class in HTML
+            // If you want to dynamically control initial state, you'd do it here.
+        };
+    </script>
 
                 <!-- Analytics Tab -->
                 <div class="tab-content" id="analyticsTab">
