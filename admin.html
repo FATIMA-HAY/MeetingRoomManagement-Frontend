@@ -31,10 +31,12 @@
                     <i class="fas fa-file-alt"></i>
                     Minutes
                 </a>
+                <!---
                 <a href="minutes-review.html" class="nav-link" data-screen="minutes-review">
                     <i class="fas fa-search"></i>
                     Review
                 </a>
+                -->
                 <a href="admin.html" class="nav-link active" data-screen="admin">
                     <i class="fas fa-cog"></i>
                     Admin
@@ -42,10 +44,7 @@
             </div>
             
             <div class="nav-user">
-                <div class="user-info">
-                    <span id="userName">John Doe</span>
-                    <small id="userRole">Manager</small>
-                </div>
+                
                 <button class="btn btn-outline btn-sm" id="logoutBtn">
                     <i class="fas fa-sign-out-alt"></i>
                     Logout
@@ -61,13 +60,19 @@
 
             <div class="admin-container">
                 <div class="admin-tabs">
-                    <button class="tab-btn active" data-tab="rooms">Room Management</button>
-                    <button class="tab-btn" data-tab="analytics">Analytics</button>
-                    <button class="tab-btn" data-tab="users">User Management</button>
+                    <button class="tab-btn" data-tab="rooms" id="room-management-btn" onclick="openTab(event,'room-management-content')">Room Management</button>
+                    <button class="tab-btn" data-tab="users" id="user-management-btn" onclick="openTab(event,'user-management-content')">User Management</button>
                 </div>
-
-                <!-- Room Management Tab -->
-                <style>
+        <style>
+        #user-management-content{
+            display: none;
+        }
+        #DeleteUserFormContainer{
+            display: none;
+        }
+        #room-management-content{
+            display: none;
+        }
         body {
             font-family: "Inter", sans-serif;
             background-color: #f3f4f6;
@@ -84,14 +89,13 @@
         /* Basic styling for the forms to look distinct */
         .form-card {
             background-color: white;
-            padding: 1.5rem;
-            border-radius: 0.5rem;
+            border-radius: 1.5rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             margin-top: 1rem;
             width: 100%;
             max-width: 600px; /* Limit width for better presentation */
         }
-        input[type="text"], input[type="number"] {
+        input[type="text"], input[type="number"],input[type="Email"],input[type="password"] {
             padding: 0.75rem;
             border: 1px solid #d1d5db;
             border-radius: 0.375rem;
@@ -133,11 +137,36 @@
         .btn-add:hover {
             background-color: #16a34a;
         }
+        .tab-btn:hover{
+            background-color: #2563eb;
+        }
+        .form-select {
+            margin-bottom: 15px;
+            width: 100%;  /* Full width to match form layout */
+            padding: 0.5rem;  /* Add some padding for a better feel */
+            font-size: 1rem;  /* Adjust font size */
+            border: 1px solid #ccc;  /* Border color */
+            border-radius: 0.25rem;  /* Rounded corners */
+            background-color: #fff;  /* White background */
+            box-shadow: none;  /* Remove any shadow */
+            transition: border-color 0.3s ease;  /* Smooth transition for border */
+        }
+
+        .form-select:focus {
+            border-color: #007bff;  /* Highlight the border color when focused */
+            outline: none;  /* Remove the default outline */
+        }
+
+        .form-select option {
+            padding: 10px;  /* Add padding for the dropdown options */
+            font-size: 1rem;  /* Keep the font consistent */
+        }
+        
     </style>
 </head>
 <body class="p-8">
 
-    <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
+    <div id="room-management-content" class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
         <!-- Navigation/Header -->
         
 
@@ -146,9 +175,6 @@
         <!-- Action Buttons -->
         <div class="flex space-x-4 mb-8">
             <button id="addRoomBtn" class="btn btn-add flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
-                </svg>
                 Add Room
             </button>
             <button id="updateRoomBtn" class="btn btn-primary">Update Room</button>
@@ -156,7 +182,7 @@
         </div>
 
         <!-- Add Room Form (Initially visible based on the screenshot, but can be toggled) -->
-        <div id="addRoomFormContainer" class="form-container active">
+       <div id="addRoomFormContainer" class="form-container active">
             <div class="form-card">
                 <h2 class="text-xl font-semibold mb-4 text-gray-700">Add New Room</h2>
                 <!-- BEGIN MODIFICATION: Wrap form elements in a <form> tag -->
@@ -193,7 +219,6 @@
                 <!-- END MODIFICATION -->
             </div>
         </div>
-
         <!-- Update Room Form (Initially hidden) -->
         <div id="updateRoomFormContainer" class="form-container">
             <div class="form-card">
@@ -246,9 +271,79 @@
                 </div>
             </div>
         </div>
-
+                
     </div>
-
+     <div class="tab-content" id="user-management-content">
+                <div class="user-management">
+                    <div class="user-header">
+                        <h1 class="text-3xl font-bold mb-6 text-gray-800">User Management</h1>
+                        <button class="btn btn-primary" id="AddUserBtn">
+                            <i class="fas fa-plus"></i>
+                            Add User
+                        </button>
+                        <button class="btn btn-danger" id="DeleteUserBtn">
+                            <i class="fas fa-minus"></i>
+                               Delete User
+                        </button>
+                    </div>
+                </div>
+                <div id="addUserFormContainer" class="form-container active">
+                    <div class="form-card">
+                        <h2 class="text-xl font-semibold mb-4 text-gray-700">Add New User</h2>
+                <!-- BEGIN MODIFICATION: Wrap form elements in a <form> tag -->
+                        <form id="addUserForm">
+                            <div class="mb-4">
+                                 <label for="addUserFirstName" class="block text-gray-700 text-sm font-bold mb-2">First Name</label>
+                                 <input type="text" id="addUserFirstName" placeholder="First Name" class="focus:ring-blue-500 focus:border-blue-500" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="addUserLastName" class="block text-gray-700 text-sm font-bold mb-2">Last Name</label>
+                                <input type="text" id="addUserLastName" placeholder="Last Name" class="focus:ring-blue-500 focus:border-blue-500" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="addUserEmail" class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                                <input type="Email" id="addUserEmail" placeholder="Email" class="focus:ring-blue-500 focus:border-blue-500" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="addUserPass" class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+                                <input type="password" id="addUserPassword" placeholder="Password" class="focus:ring-blue-500 focus:border-blue-500" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="roleId" class="form-label">Role</label>
+                                <select class="form-select" id="roleId" name="roleId" required>
+                                    <option value="1">Admin</option>
+                                    <option value="2">Employee</option>
+                                    <option value="3">Guest</option>
+                                </select>
+                            </div>
+                            <div class="flex space-x-4">
+                        <!-- Changed to type="submit" to trigger form submission -->
+                                <button type="submit" class="btn btn-primary" onclick="PostUser()" id="AddUserBtn">Save User</button>
+                                <button type="button" class="btn btn-secondary" onclick="toggleForm('addUserFormContainer')">Cancel</button>
+                            </div>
+                        </form>
+                <!-- END MODIFICATION -->
+                    </div>
+                </div>
+                <div id="DeleteUserFormContainer" class="form-container active">
+                    <div class="form-card">
+                        <h2 class="text-xl font-semibold mb-4 text-gray-700">Delete User</h2>
+                <!-- BEGIN MODIFICATION: Wrap form elements in a <form> tag -->
+                        <form id="DeleteUserForm">
+                            <div class="mb-4">
+                                 <label for="DeleteUserId" class="block text-gray-700 text-sm font-bold mb-2">User Id</label>
+                                 <input type="text" id="addUserId" placeholder="ID" class="focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        <!-- Changed to type="submit" to trigger form submission -->
+                                <button type="submit" class="btn btn-primary" onclick="DeleteUser()" id="DeleteUserBtn">Delete User</button>
+                                <button type="button" class="btn btn-secondary" onclick="toggleForm('DeleteUserFormContainer')">Cancel</button>
+    
+                        </form>
+                    </div>
+                <!-- END MODIFICATION -->
+                </div>
+    </div>
+    </main>
     <script>
         // Function to toggle the visibility of a form container
         function toggleForm(formId) {
@@ -264,7 +359,15 @@
                 }
             });
         }
-
+        
+         document.getElementById("user-management-btn").addEventListener("click", function() {
+            document.getElementById("room-management-content").style.display = "none";
+            document.getElementById("user-management-content").style.display = "block";
+        });
+        document.getElementById("room-management-btn").addEventListener("click",function(){
+             document.getElementById("room-management-content").style.display = "block";
+             document.getElementById("user-management-content").style.display = "none";
+        })
         // Event Listeners for the main action buttons
         document.getElementById('addRoomBtn').addEventListener('click', function() {
             toggleForm('addRoomFormContainer');
@@ -277,64 +380,27 @@
         document.getElementById('deleteRoomBtn').addEventListener('click', function() {
             toggleForm('deleteRoomFormContainer');
         });
+        document.getElementById('AddUserBtn').addEventListener('click',function(){
+            document.getElementById("addUserFormContainer").style.display="block"
+            document.getElementById("DeleteUserFormContainer").style.display="none"
+            toggleForm('addUserFormContainer');
+        });
+        document.getElementById('DeleteUserBtn').addEventListener('click',function(){
+            document.getElementById("addUserFormContainer").style.display="none"
+            document.getElementById("DeleteUserFormContainer").style.display="block"
+            toggleForm('DeleteUserFormContainer');
+        });
 
         // Initially show the Add Room form as per the user's screenshot
         window.onload = function() {
             // No action needed here, as 'addRoomFormContainer' already has 'active' class in HTML
             // If you want to dynamically control initial state, you'd do it here.
         };
+        const authToken= localStorage.getItem('authToken');
+        const payload=JSON.parse(atob(authToken.split('.')[1]))
+        const Role= payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+        document.getElementById('userRole').textContent=Role;
     </script>
-
-                <!-- Analytics Tab -->
-                <div class="tab-content" id="analyticsTab">
-                    <div class="analytics-grid">
-                        <div class="analytics-card">
-                            <h4>Room Usage</h4>
-                            <div class="chart-container">
-                                <canvas id="roomUsageChart"></canvas>
-                            </div>
-                        </div>
-                        
-                        <div class="analytics-card">
-                            <h4>Meeting Statistics</h4>
-                            <div class="stats-grid">
-                                <div class="stat-item">
-                                    <span class="stat-number" id="totalMeetings">0</span>
-                                    <span class="stat-label">Total Meetings</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-number" id="avgDuration">0</span>
-                                    <span class="stat-label">Avg Duration</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-number" id="utilization">0%</span>
-                                    <span class="stat-label">Room Utilization</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- User Management Tab -->
-                <div class="tab-content" id="usersTab">
-                    <div class="user-management">
-                        <div class="user-header">
-                            <h3>User Management</h3>
-                            <button class="btn btn-primary" onclick="addUser()">
-                                <i class="fas fa-plus"></i>
-                                Add User
-                            </button>
-                        </div>
-                        
-                        <div class="users-list" id="usersList">
-                            <!-- Users will be populated by JavaScript -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
-
     <!-- Scripts -->
     <script src="js/utils.js"></script>
     <script src="js/auth.js"></script>

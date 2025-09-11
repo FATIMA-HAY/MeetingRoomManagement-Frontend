@@ -452,7 +452,7 @@ class AdminManager {
 
         this.users.push(newUser);
         this.updateUsersDisplay();
-        this.showSuccess('User added successfully');
+        //this.showSuccess('User added successfully');
     }
 
     editUser(userId) {
@@ -829,7 +829,7 @@ async function PostRoom() {
         .catch(error => console.error('Error creating room:', error));
          if(!res.ok)throw new Error("Connecting Failed or Unauthorized access");
          const result = await res.json();
-        console.log("Room added successfully:", result);
+        alert("Room added successfully:");
         }catch(error){
              console.error("An error occured",error);
         }
@@ -862,8 +862,8 @@ async function PostRoom() {
                 body:JSON.stringify(roomData)
             })
              if(!res.ok)throw new Error("Connecting Failed or Unauthorized access");
+             else console.log("Room Updated successfully:");
              const result = await res.json();
-             console.log("Room added successfully:", result);
             }catch(error){
              console.error("An error occured",error);
         }
@@ -882,9 +882,56 @@ async function PostRoom() {
             })
              if(!res.ok)throw new Error("Connecting Failed or Unauthorized access");
              const result = await res.json();
-             console.log("Room Deleted successfully:", result);
+             alert("Room Deleted successfully:");
             }catch(error){
              console.error("An error occured",error);
+        }
+        
+    }
+    async function PostUser() {
+        const authToken=localStorage.getItem('authToken');
+        const FirstName=document.getElementById('addUserFirstName').value;
+        console.log(FirstName);
+        const LastName=document.getElementById('addUserLastName').value;
+        console.log(LastName);
+        const Email=document.getElementById('addUserEmail').value;
+        console.log(Email);
+        const Password=document.getElementById('addUserPassword').value;
+        console.log(Password);
+        const RoleId=document.getElementById('roleId').value;
+        console.log(RoleId)
+        const url=`https://localhost:7209/Users/AddUser?FIRSTNAME=${FirstName}&LASTNAME=${LastName}&EMAIL=${Email}&PASSWORD=${Password}&ROLEID=${RoleId}`;
+        try{
+            const res=await fetch(url,{
+                method:'POST',
+                headers:{
+                    'Authorization':`Bearer ${authToken}`,
+                    'Content-Type':'application/json'
+                },
+            })
+            if(!res.ok)alert("Failed");
+            //else alert('User Added Successfully');
+        }catch(error){
+            console.error("An error occured",error);
+        }
+    }
+    document.getElementById('AddUserBtn').addEventListener("click",PostUser());
+    async function DeleteUser() {
+        const authToken=localStorage.getItem('authToken');
+        const Id=document.getElementById('addUserId').value;
+        const url=`https://localhost:7209/Users/DeleteUser?id=${Id}`
+        try{
+            const res=await fetch(url,{
+                method:'DELETE',
+                headers:{
+                    'Authorization':`Bearer ${authToken}`,
+                    'Content-Type':'application/json'
+                },
+            })
+            if(!res.ok)alert('Failed');
+            else alert('User has been deleted');
+        }catch(error){
+            console.error("An error occured",error);
         }
         
     }
@@ -892,4 +939,8 @@ async function PostRoom() {
 document.addEventListener('DOMContentLoaded', () => {
     window.adminManager = new AdminManager();
 }); 
-
+/*document.addEventListener('DOMContentLoaded',function(){
+    const payload=JSON.parse(atob(authToken.split('.')[1]))
+    const Role= payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+    document.getElementById('userRole').textContent=Role;
+})*/

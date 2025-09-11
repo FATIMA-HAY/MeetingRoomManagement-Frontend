@@ -203,6 +203,8 @@ class DashboardManager {
             this.meetings=[];
         }
         this.updateUpcomingMeetings(this.meetings);
+        const meetings= await LastWeekMeeting();
+        this.updateLastWeekMeeting(meetings);
     }
 
     async loadRooms() {
@@ -308,11 +310,13 @@ class DashboardManager {
            // meetingElement.dataset.meetingId = meeting.id;
             const timeUntil = this.getTimeUntilMeeting(meeting.date, startTime);
             const timeClass = this.getTimeClass(timeUntil);
-            
+            const [datePart1,timePart1]=meeting.startTime.split('T');
+            const [datePart2,timePart2]=meeting.endTime.split('T');
             meetingElement.innerHTML = `
                 <div class="meeting-time">
-                    <div class="time">${startTime}</div>
-                    <div class="time">${endTime}</div>
+                    <div claas="time">${datePart1}</div>
+                    <div class="time">${timePart1.slice(0,5)}</div>
+                    <div class="time">${timePart2.slice(0,5)}</div>
                 </div>
                 <div class="meeting-details">
                     <div class="meeting-title">${meeting.title}</div>
@@ -324,11 +328,41 @@ class DashboardManager {
                     <button class="btn btn-sm btn-primary" onclick="joinMeeting(${meeting.id})">
                         <i class="fas fa-video"></i> Join
                     </button>
-                    <button class="btn btn-sm btn-outline" onclick="viewMeetingDetails(${meeting.id})">
-                        <i class="fas fa-eye"></i> View
+                    <button id="CancelMeetingBtn" class="btn btn-sm btn-outline" onclick="CancelMeeting(meeting.id)">
+                        <i class="fas fa-times"></i> Cancel
                     </button>
                 </div>
                 
+            `;
+            
+            container.appendChild(meetingElement);
+        });        
+    }
+    updateLastWeekMeeting(meeting){
+        const container=document.getElementById("LastWeekMeetingsList");
+        if(!container)return;
+        container.innerHTML = '';
+        if(meeting.length==0){
+            container.textContent="No Upcoming Meeting";
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fa fa-times"></i>
+                    <p>No meetings Last Week</p>
+                </div>
+            `;
+            return;
+        }
+         meeting.forEach( meeting => {
+            const [DatePart,TimePart]=meeting.startTime.split("T");
+            const meetingElement = document.createElement('div');
+            meetingElement.className = 'meeting-item';
+            meetingElement.innerHTML = `
+                <div class="meeting-time">
+                    <div class="time">${DatePart}</div>
+                </div>
+                <div class="meeting-details">
+                    <div class="meeting-title">${meeting.title}</div>
+                </div>
             `;
             
             container.appendChild(meetingElement);
@@ -446,6 +480,7 @@ class DashboardManager {
         const totalMeetings =  GetTotalMeetings();
         const todayMeetings =  GetTodayMeetings();
         const availableRooms=  getAvialableRoom();
+        const Mostusedroom=  MostUsedRoom();
         const totalRooms = this.rooms.length;
 
         // Update stats display if elements exist
@@ -472,11 +507,11 @@ class DashboardManager {
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon">
-                        <i class="fas fa-door-open"></i>
+                        <i class="fas fa-calendar-check"></i>
                     </div>
                     <div class="stat-content">
-                        <div id="AvailableRoom" class="stat-number">${availableRooms}</div>
-                        <div class="stat-label">Available Rooms</div>
+                        <div id="MostUsedRoom" class="stat-number">${Mostusedroom}</div>
+                        <div class="stat-label">Most Used Room</div>
                     </div>
                 </div>
             `;
@@ -488,14 +523,15 @@ class DashboardManager {
             return '<span class="availability-status available">Available Now</span>';
         } else if (rooms.roomStatus=== 'Booked') {
             const meeting =this.meetings.find(m => m.roomId === rooms.id);
+             const [DatePart,TimePart]=meeting.endTime.split("T");
             if (meeting) {
             // Check if meeting.endTime exists and is a valid string
-            if (meeting.endTime && typeof meeting.endTime === 'string') {
+            if (meeting.endTime ) {
                 const endTimeObject = new Date(meeting.endTime.trim()); // Create Date object from endTime string
                 if (!isNaN(endTimeObject.getTime())) { // Validate the Date object
                     const formattedEndTime = endTimeObject.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                     console.log(formattedEndTime);
-                    return `<span class=\"availability-status booked\">Booked until ${formattedEndTime}</span>`;
+                    return `<span class=\"availability-status booked\">Booked Now</span>`;
                 } else {
                     console.warn(`Invalid meeting.endTime for meeting ID ${meeting.id}: '${meeting.endTime}'`);
                     return "<span class=\"availability-status booked\">Booked (Invalid End Time)</span>";
@@ -844,7 +880,7 @@ async function GetTodayMeetings() {
         document.getElementById("TodayMeetings").textContent=count;
     }catch(error){
         console.error(error);
-        document.getElementById("TodayMeetings").textContent="failed to bring data"
+        document.getElementById("TodayMeetings").textContent="failed to bring data";
     }
 }
 async function getAvialableRoom() {
@@ -860,17 +896,19 @@ async function getAvialableRoom() {
         });
         if(!res.ok)throw new Error("connecting failed or unauthorized access");
         const availableroom=await res.json();
-        document.getElementById("AvailableRoom").textContent=availableroom;
+       // document.getElementById("AvailableRoom").textContent=availableroom;
        // return availableroom;
     }catch(error){
         console.error(error);
        // return [];
-        document.getElementById("AvailableRoom").textContent="failed to bring data"
+        //document.getElementById("AvailableRoom").textContent="failed to bring data"
     }
 }
 async function GetUpcomingMeeting() {
     const authToken= localStorage.getItem("authToken");
     const url="https://localhost:7209/api/Bookings/Upcoming-Meetings"
+    const payload=JSON.parse(atob(authToken.split('.')[1]))
+    const Role= payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
     try{
         const res= await fetch(url,{
             method:'GET',
@@ -881,12 +919,32 @@ async function GetUpcomingMeeting() {
         });
         if(!res.ok)throw new Error("Conneting Failed Or Unauthorized Access");
         const data=await res.json();
+        console.log(Role)
+        document.getElementById('userRole').textContent=Role;
         return data;
     }catch(error){
         console.error(error);
         return[];
     }
-    
+}
+async function LastWeekMeeting() {
+    const authToken= localStorage.getItem("authToken");
+    const url="https://localhost:7209/api/Bookings/MeetingsPerWeek"
+    try{
+        const res=await fetch(url,{
+            method:'GET',
+            headers:{
+                'Authorization':`Bearer ${authToken}`,
+                'Content-Type':'application/json'
+            }
+        });
+        if(!res.ok)throw new error("Connecting Failed or Unauthorized Access");
+        const data=await res.json();
+        return data;
+    }catch(error){
+        console.error(error);
+        return[];
+    }
 }
 async function getRoomAvailability() {
     const authToken= localStorage.getItem("authToken");
@@ -908,4 +966,51 @@ async function getRoomAvailability() {
         return [];
     }
 }
-window.addEventListener("DOMContentLoaded",GetTotalMeeting);
+async function CancelMeeting(meetingId) {
+    const authToken= localStorage.getItem("authToken");
+    const url=`https://localhost:7209/api/Bookings/DeleteBooking?id=${meetingId}`
+    console.log(meetingId);
+    try{
+        const res=await fetch(url,{
+            method:'DELETE',
+            headers:{
+                'Authorization':`Bearer ${authToken}`,
+                'Content-Type':'application/json'
+            }
+        });
+        console.log(res.status);
+        if(!res.ok)console.log("Failed To Cancel Meeting");
+        else console.log("Meeting has been cancelled");
+        GetUpcomingMeeting();
+    }catch(error){
+        console.error(error);
+    }
+}
+async function MostUsedRoom() {
+    const authToken= localStorage.getItem("authToken");
+    const url=`https://localhost:7209/api/Room/MostUsedRoom`
+    try{
+        const res=await fetch(url,{
+            method:'GET',
+            headers:{
+                'Authorization':`Bearer ${authToken}`,
+                'Content-Type':'application/json'
+            }
+        });
+        console.log(res.status); 
+        if(!res.ok)throw new error("Connection Failed or Unauthorized Access");
+        const data = await res.json(); 
+        console.log(data);  
+        if (data && data.room && data.room.name) {
+        document.getElementById("MostUsedRoom").textContent = data.room.name;
+      } else{
+        document.getElementById("MostUsedRoom").textContent="Failed To Load Data";
+      }
+      return data.room.name;
+    }catch(error){
+        console.error(error);
+        //document.getElementById("TodayMeetings").textContent="failed to bring data"
+        return;
+    }
+}
+

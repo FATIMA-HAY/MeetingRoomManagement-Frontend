@@ -8,6 +8,40 @@
     <link rel="stylesheet" href="css/components.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* تنسيقات مخصصة لتنسيق الخلفية وتوسيط المحتوى */
+        body {
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        /* تنسيق حقل التحديد المتعدد */
+        .form-select[multiple] {
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+        }
+
+        .form-select[multiple]:focus {
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+            border-color: #86b7fe;
+        }
+        
+        /* تأثير التحديد على الخيارات */
+        .form-select option:checked {
+            background-color: #0d6efd !important;
+            color: white !important;
+        }
+        
+        /* تنسيق رسالة الخطأ */
+        .error-message {
+            color: #dc3545; /* لون أحمر لتنبيه الخطأ */
+            font-size: 0.875rem;
+            display: none; /* إخفاء الرسالة بشكل افتراضي */
+        }
+    </style>
 </head>
 <body>
     <!-- Meeting Booking Screen -->
@@ -31,11 +65,13 @@
                     <i class="fas fa-file-alt"></i>
                     Minutes
                 </a>
-                <a href="minutes-review.html" class="nav-link" data-screen="minutes-review">
+                <!--
+                    <a href="minutes-review.html" class="nav-link" data-screen="minutes-review">
                     <i class="fas fa-search"></i>
                     Review
-                </a>
-                <a href="admin.html" class="nav-link" data-screen="admin">
+                    </a>
+                -->
+                <a href="#" class="nav-link" data-screen="admin" id="AdminForm">
                     <i class="fas fa-cog"></i>
                     Admin
                 </a>
@@ -43,8 +79,7 @@
             
             <div class="nav-user">
                 <div class="user-info">
-                    <span id="userName">John Doe</span>
-                    <small id="userRole">Manager</small>
+                    <small id="userRole"></small>
                 </div>
                 <button class="btn btn-outline btn-sm" id="logoutBtn">
                     <i class="fas fa-sign-out-alt"></i>
@@ -110,11 +145,10 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="attendees">Attendees</label>
-                            <div class="attendees-input">
-                                <input type="text" id="attendeeInput" placeholder="Type email and press Enter" class="input-field">
-                                <div class="attendees-tags" id="attendeesTags"></div>
-                            </div>
+                            <label>Select meeting attendees*</label>
+                            <select id="Attendee",name="Attendee", class="form-select" multiple required>
+                                
+                            </select>
                             <span class="error-message" id="attendeesError"></span>
                         </div>
 
@@ -131,8 +165,8 @@
                             </select>
                             <span class="error-message" id="roomError"></span>
                         </div>
-
-                        <div class="form-options">
+                        <!--
+                            <div class="form-options">
                             <label class="checkbox-label">
                                 <input type="checkbox" id="recurring" name="recurring">
                                 <span class="checkmark"></span>
@@ -145,12 +179,12 @@
                                 Video Conferencing
                             </label>
                         </div>
-
+                        -->
                         <div class="form-actions">
                             <a href="dashboard.html" class="btn btn-outline">
                                 Cancel
                             </a>
-                            <button type="submit" class="btn btn-primary" onclick="BookMeeting()">
+                            <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-calendar-check"></i>
                                 Book Now
                             </button>
@@ -167,7 +201,20 @@
             </div>
         </main>
     </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script>
+    <script>
+        const authToken=localStorage.getItem('authToken');
+        const payload=JSON.parse(atob(authToken.split('.')[1]))
+        const Role= payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+        document.getElementById("AdminForm").addEventListener("click",function(e){
+            if(Role!="Admin"){
+                e.preventDefault();
+                alert("This page is restricted to Admins only.")
+            }else{
+                window.location.href="admin.html"
+                }
+            })
+    </script>
     <!-- Scripts -->
     <script src="js/utils.js"></script>
     <script src="js/auth.js"></script>

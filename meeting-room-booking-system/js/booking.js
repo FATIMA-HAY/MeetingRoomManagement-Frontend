@@ -331,19 +331,20 @@ class BookingManager {
         return true;
     }
 
-    validateRoom(roomId) {
+    async validateRoom(roomId) {
+        const rooms=await this.getRooms();
         if (!roomId) {
             this.showFieldError('roomError', 'Please select a room');
             return false;
         }
         
-        const selectedRoom = this.rooms.find(r => r.id === roomId);
+        const selectedRoom = rooms.find(r => r.id === roomId);
         if (!selectedRoom) {
             this.showFieldError('roomError', 'Invalid room selected');
             return false;
         }
         
-        if (selectedRoom.status !== 'available') {
+        if (selectedRoom.roomStatus !== 'available') {
             this.showFieldError('roomError', 'Selected room is not available');
             return false;
         }

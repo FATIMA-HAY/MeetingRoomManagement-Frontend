@@ -564,7 +564,7 @@
             }
         }
     }
-   /* async function ResetPassword() {
+  /* async function ResetPassword() {
             const apiUrl='https://localhost:7209/api/Authentication/ForgotPassword'
             const email=document.getElementById("ResetEmail");
             const password=document.getElementById("ResetPassword");
@@ -579,6 +579,8 @@
             })
                 if(!res.ok)throw new error("Failed");
                 else{
+                    console.log("Your password has changes successfully!");
+                    alert("Your password has changes successfully!");
                     this.showToast('Login successful!', 'success');
                 }
             }catch(error){
@@ -586,8 +588,11 @@
             }
             window.close();
     }
-    document.getElementById("ForgotPassBtn").addEventListener("click",ResetPassword);*/
+   // document.getElementById("ForgotPassBtn").addEventListener("click",Rese);
     // Initialize auth manager when DOM is loaded
+    document.getElementById("ForgotPassBtn").addEventListener("click",function(){
+        ResetPassword();
+    })*/
     document.addEventListener('DOMContentLoaded', () => {
         window.authManager = new AuthManager();
     });

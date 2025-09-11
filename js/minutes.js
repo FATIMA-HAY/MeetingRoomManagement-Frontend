@@ -238,6 +238,9 @@ class MinutesManager {
 
     loadMeetingData() {
         // Get meeting data from global context
+        //const payload=JSON.parse(atob(authToken.split('.')[1]))
+        //const Role= payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+     
         if (window.currentMeetingForMinutes) {
             this.currentMeeting = window.currentMeetingForMinutes;
         } else if (window.currentMeeting) {
@@ -255,13 +258,13 @@ class MinutesManager {
                 status: 'active'
             };
         }
-
+       // document.getElementById('userRole').textContent=Role;
         this.minutes.attendees = [...this.currentMeeting.attendees];
         this.updateDisplay();
     }
 
     updateDisplay() {
-        this.updateMeetingInfo();
+        //this.updateMeetingInfo();
         this.updateAgendaDisplay();
         this.updateAttendeesDisplay();
         this.updateDecisionsDisplay();
@@ -270,8 +273,8 @@ class MinutesManager {
         this.updateAttachmentsDisplay(); // Update attachments display
     }
 
-    updateMeetingInfo() {
-        const meetingData=GetMeetingTitleDate();
+    /*updateMeetingInfo() {
+        //const meetingData=GetMeetingTitle();
         const meeting=meetingData[0];
         if (!meeting) return;
 
@@ -286,7 +289,7 @@ class MinutesManager {
             timeElement.textContent = `${meeting.startTime} - ${meeting.endTime}`;
         }
         if (roomElement) roomElement.textContent = meeting.room;
-    }
+    }*/
 
     updateAgendaDisplay() {
         const agendaContainer = document.getElementById('agendaContainer');
@@ -818,7 +821,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.minutesManager.loadFromStorage();
     }, 100);
 }); 
-async function GetMeetingTitleDate() {
+async function GetMeetingTitle() {
     const authToken= localStorage.getItem("authToken");
     const url="https://localhost:7209/api/Bookings/GetBookings"
     if(!authToken){
@@ -833,10 +836,59 @@ async function GetMeetingTitleDate() {
             }
         });
         if(!res.ok) throw new Error("Conneting Failed Or Unauthorized Access");
-        const response=res.json();
+        const response=await res.json();
+        const TitleCmb=document.getElementById('MeetingTitle');
+        if(!TitleCmb)return;
+        console.log(response);
+        response.meetings.forEach(meeting=>{
+            const option=document.createElement('option');
+            option.value=meeting.id;
+            option.textContent=`${meeting.title}`;
+            TitleCmb.appendChild(option);
+        });
         return response;
     }catch(error){
         console.error(Error);
         return [];
     }
 }
+async function GetUsers() {
+     const authToken= localStorage.getItem('authToken');
+     const apiUrl="https://localhost:7209/Users/GetUsers"
+     const payload=JSON.parse(atob(authToken.split('.')[1]))
+     const Role= payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+    
+     try{
+        const res=await fetch(apiUrl,{
+            method:'GET',
+            headers:{
+                'Authorization':`Bearer ${authToken}`,
+                'Content-Type':'application/json'
+            }
+        });
+        //console.log(res.status,res.statusText);
+        if(!res.ok)throw new Error("Connecting Failed or Unauthorized access");
+        const Users=await res.json();
+        const UserSelect = document.getElementById('attendees');
+        const AssignedTo = document.getElementById('AssignedTo');
+        Users.forEach(user => {
+                const option1 = document.createElement('option');
+                option1.value = user.id;
+                option1.textContent = `${user.email} (id=${user.id})`;
+                UserSelect.appendChild(option1);
+
+               
+        });
+        document.getElementById('userRole').textContent=Role;
+        return Users;
+    }catch(error){
+        console.error(error);
+        return { success: false, Users: [] }; 
+    }
+}
+document.addEventListener("DOMContentLoaded",function(){
+    GetMeetingTitle();
+});
+document.addEventListener("DOMContentLoaded",async function(){
+   await GetUsers();
+});

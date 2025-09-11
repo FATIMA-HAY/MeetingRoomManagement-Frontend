@@ -7,8 +7,11 @@ class BookingManager {
         this.init();
     }
 
-    init() {
-        this.loadRooms();
+   async init() {
+        this.attendees=await GetUsers();
+        this.rooms=await getRooms();
+        this.validateRoom();
+        this.updateRoomOptions(this.rooms);
         this.setupEventListeners();
         this.setupAttendeeManagement();
         this.setupFormValidation();
@@ -23,6 +26,7 @@ class BookingManager {
             bookingForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 this.handleBookingSubmission();
+                BookMeeting();
             });
         }
 
@@ -30,7 +34,7 @@ class BookingManager {
         const titleInput = document.getElementById('meetingTitle');
         const dateInput = document.getElementById('meetingDate');
         const startTimeInput = document.getElementById('startTime');
-        const durationInput = document.getElementById('duration');
+        const endTimeInput = document.getElementById('endTime');
         const roomInput = document.getElementById('room');
 
         if (titleInput) {
@@ -54,9 +58,9 @@ class BookingManager {
             startTimeInput.addEventListener('blur', () => this.validateStartTime(startTimeInput.value));
         }
 
-        if (durationInput) {
-            durationInput.addEventListener('change', () => {
-                this.validateDuration(durationInput.value);
+        if (endTimeInput) {
+            endTimeInput.addEventListener('change', () => {
+                this.validateEndTime(endTimeInput.value);
                 this.loadAvailabilityPreview();
             });
         }
@@ -66,7 +70,7 @@ class BookingManager {
         }
 
         // Recurring meeting options
-        const recurringCheckbox = document.getElementById('recurring');
+       /* const recurringCheckbox = document.getElementById('recurring');
         if (recurringCheckbox) {
             recurringCheckbox.addEventListener('change', () => this.toggleRecurringOptions());
         }
@@ -75,7 +79,7 @@ class BookingManager {
         const videoConferenceCheckbox = document.getElementById('videoConference');
         if (videoConferenceCheckbox) {
             videoConferenceCheckbox.addEventListener('change', () => this.toggleVideoConferenceOptions());
-        }
+        }*/
 
         // Logout button
         const logoutBtn = document.getElementById('logoutBtn');
@@ -109,7 +113,7 @@ class BookingManager {
 
     setupFormValidation() {
         // Real-time validation for all required fields
-        const requiredFields = ['meetingTitle', 'meetingDate', 'startTime', 'duration', 'room'];
+        const requiredFields = ['meetingTitle', 'meetingDate', 'startTime', 'endTime', 'room'];
         requiredFields.forEach(fieldId => {
             const field = document.getElementById(fieldId);
             if (field) {
@@ -158,7 +162,7 @@ class BookingManager {
            // this.loadMockRooms();
         }
 
-        this.updateRoomOptions();
+        this.updateRoomOptions(this.rooms);
     }
 
     /*loadMockRooms() {
@@ -202,9 +206,9 @@ class BookingManager {
     async loadAvailabilityPreview() {
         const dateInput = document.getElementById('meetingDate');
         const startTimeInput = document.getElementById('startTime');
-        const durationInput = document.getElementById('duration');
+        const endTimeInput = document.getElementById('endTime');
         
-        if (!dateInput?.value || !startTimeInput?.value || !durationInput?.value) {
+        if (!dateInput?.value || !startTimeInput?.value || !endTimeInput?.value) {
             return;
         }
 
@@ -291,14 +295,16 @@ class BookingManager {
         return room.status === 'available';
     }
 
-    updateRoomOptions() {
+    async updateRoomOptions(rooms) {
+        //const rooms=await getRooms();
+        //console.log("UpdateRomOptions Rooms:",rooms);
         const roomSelect = document.getElementById('room');
         if (!roomSelect) return;
 
         roomSelect.innerHTML = '<option value="">Select a room</option>';
         
-        this.rooms.forEach(room => {
-            if (room.status === 'available') {
+        rooms.forEach(room => {
+            if (room.roomStatus === 'Available') {
                 const option = document.createElement('option');
                 option.value = room.id;
                 option.textContent = `${room.name} (Capacity: ${room.capacity})`;
@@ -309,9 +315,9 @@ class BookingManager {
 
     addAttendee() {
         const attendeeInput = document.getElementById('attendeeInput');
-        const attendeesTags = document.getElementById('attendeesTags');
+        //const attendeesTags = document.getElementById('attendeesTags');
         
-        if (!attendeeInput || !attendeesTags) return;
+        if (!attendeeInput) return;
 
         const email = attendeeInput.value.trim();
         
@@ -363,9 +369,9 @@ class BookingManager {
         // Update room options with capacity indicators
         roomSelect.innerHTML = '<option value="">Select a room</option>';
         this.rooms=await getRooms();
-        console.log("UpdateRecommendationRoom Rooms:",this.rooms)
+        //console.log("UpdateRecommendationRoom Rooms:",this.rooms)
         this.rooms.forEach(room => {
-            if (room.roomStatus=== 'available') {
+            if (room.roomStatus=== 'Available') {
                 const option = document.createElement('option');
                 option.value = room.id;
                 
@@ -393,8 +399,8 @@ class BookingManager {
                 return this.validateDate(value);
             case 'startTime':
                 return this.validateStartTime(value);
-            case 'duration':
-                return this.validateDuration(value);
+            case 'endTime':
+                return this.validateEndTime(value);
             case 'room':
                 return this.validateRoom(value);
             default:
@@ -485,14 +491,14 @@ class BookingManager {
         return true;
     }*/
     async validateRoom(roomId) {
-        const roomData=await getRooms();
-        console.log("Actual rooms array:", roomData.rooms);
+        const rooms=await getRooms();
+       // console.log("actual Rooms:",rooms);
         if (!roomId) {
             this.showFieldError('roomError', 'Please select a room');
             return false;
         }
         
-        const selectedRoom = roomData.rooms.find(r => r.id === roomId);
+        const selectedRoom = rooms.find(r => r.id === roomId);
         if (!selectedRoom) {
             this.showFieldError('roomError', 'Invalid room selected');
             return false;
@@ -527,7 +533,7 @@ class BookingManager {
         }
     }
 
-    toggleRecurringOptions() {
+   /* toggleRecurringOptions() {
         const recurringCheckbox = document.getElementById('recurring');
         const recurringOptions = document.getElementById('recurringOptions');
         
@@ -551,29 +557,29 @@ class BookingManager {
                 videoOptions.style.display = 'none';
             }
         }
-    }
+    }*/
 
     async handleBookingSubmission() {
         // Validate all fields
         const title = document.getElementById('meetingTitle').value;
         const date = document.getElementById('meetingDate').value;
         const startTime = document.getElementById('startTime').value;
-        const duration = document.getElementById('duration').value;
+        const endTime = document.getElementById('endTime').value;
         const room = document.getElementById('room').value;
-        const recurring = document.getElementById('recurring')?.checked || false;
-        const videoConference = document.getElementById('videoConference')?.checked || false;
+        //const recurring = document.getElementById('recurring')?.checked || false;
+        //const videoConference = document.getElementById('videoConference')?.checked || false;
 
         // Validate required fields
         if (!this.validateTitle(title) || 
             !this.validateDate(date) || 
             !this.validateStartTime(startTime) || 
-            !this.validateDuration(duration) || 
+            !this.validateEndTime(endTime) || 
             !this.validateRoom(room)) {
             return false;
         }
 
         // Check room availability
-        if (!await this.checkRoomAvailability(room, date, startTime, duration)) {
+        if (!await this.checkRoomAvailability(room, date, startTime, endTime)) {
             this.showError('Selected room is not available for the specified time');
             return false;
         }
@@ -587,11 +593,11 @@ class BookingManager {
                 title: title.trim(),
                 date: date,
                 startTime: startTime,
-                duration: parseInt(duration),
+                endTime: endTime,
                 roomId: room,
                 attendees: [...this.attendees],
-                recurring: recurring,
-                videoConference: videoConference,
+                /*recurring: recurring,
+                videoConference: videoConference,*/
                 createdBy: window.authManager?.getCurrentUser()?.email || 'Unknown'
             };
 
@@ -621,7 +627,7 @@ class BookingManager {
         }
     }
 
-    async checkRoomAvailability(roomId, date, startTime, duration) {
+    async checkRoomAvailability(roomId, date, startTime, endTime) {
         try {
             if (window.apiConfig) {
                 const response = await window.apiConfig.getRoomAvailability(roomId, date);
@@ -629,7 +635,7 @@ class BookingManager {
                 if (response.success) {
                     // Check if the requested time slot conflicts with existing bookings
                     const requestedStart = new Date(`${date} ${startTime}`);
-                    const requestedEnd = new Date(requestedStart.getTime() + duration * 60000);
+                    const requestedEnd = new Date(`${date} ${startTime}`);
                     
                     const conflicts = response.data.filter(booking => {
                         const bookingStart = new Date(booking.startTime);
@@ -760,7 +766,7 @@ class BookingManager {
 }
 
 // Global functions for HTML onclick handlers
-function addAttendee() {
+function PostAttendee() {
     const authToken= localStorage.getItem('authToken');
     const apiUrl="https://localhost:7209/api/Attendees/AddAttendee"
     try{
@@ -776,9 +782,7 @@ function addAttendee() {
         console.error(error);
     } 
 }
-let roomloaded=false;
 async function getRooms() {
-    if(roomloaded)return;
     const authToken= localStorage.getItem('authToken');
     const apiUrl="https://localhost:7209/api/Room/GetRoom"
     try{
@@ -792,22 +796,43 @@ async function getRooms() {
         console.log(res.status,res.statusText);
         if(!res.ok)throw new Error("Connecting Failed or Unauthorized access");
         const rooms=await res.json();
-        let select=document.getElementById("room");
-        rooms.rooms.forEach(room=>{
-            let option= document.createElement("option");
-            option.value=room.id;
-            option.textContent=room.name;
-            select.appendChild(option);
-            //console.log("text content:",option.textContent)
-        })
-        roomloaded=true
-        console.log("RoomsS:",rooms);
-        return rooms;
+        //console.log("RoomsS:",rooms.rooms);
+        return rooms.rooms;
     }catch(error){
         console.error(error);
         return { success: false, rooms: [] }; 
     }
     }
+async function GetUsers() {
+     const authToken= localStorage.getItem('authToken');
+     const apiUrl="https://localhost:7209/Users/GetUsers"
+     
+     try{
+        const res=await fetch(apiUrl,{
+            method:'GET',
+            headers:{
+                'Authorization':`Bearer ${authToken}`,
+                'Content-Type':'application/json'
+            }
+        });
+        //console.log(res.status,res.statusText);
+        if(!res.ok)throw new Error("Connecting Failed or Unauthorized access");
+        const Users=await res.json();
+        const UserSelect = document.getElementById('Attendee');
+        Users.forEach(user => {
+                const option = document.createElement('option');
+                option.value = user.email;
+                option.textContent = `${user.email}`;
+                UserSelect.appendChild(option);
+        });
+        document.getElementById('userRole').textContent=Role;
+        return Users;
+    }catch(error){
+        console.error(error);
+        return { success: false, Users: [] }; 
+    }
+}
+    //document.addEventListener("DOMContentLoaded",function(){GetUsers();});
     document.addEventListener("DOMContentLoaded",function(){getRooms();});
 function removeAttendee(email) {
     const authToken= localStorage.getItem('authToken');
@@ -820,24 +845,49 @@ function removeAttendee(email) {
                 'Content-Type':'application/json'
             }
         });
-        if(!res.okay)throw new Error("Connecting Failed or Unauthorized access");
+        if(!res.ok)throw new Error("Connecting Failed or Unauthorized access");
     }catch(error){
         console.error(error);
     }
 }
-function BookMeeting(){
+async function BookMeeting(){
     const authToken= localStorage.getItem('authToken');
-    const apiUrl="https://localhost:7209/api/Booking/AddBookings"
+    const apiUrl="https://localhost:7209/api/Bookings/AddBookings"
     const title=document.getElementById('meetingTitle').value;
     const agenda=document.getElementById('meetingAgenda').value
     const startTime=document.getElementById('startTime').value;
     const endTime=document.getElementById('endTime').value;
     const date=document.getElementById('meetingDate').value;
-    const roomSelect=document.getElementById('room');
-    const payload=JSON.parse(atob(token.split('.')[1]));
-    const UserId=payload.id;
-    const attendees=document.getElementById('attendeeInput');
-    const selectedRoomId=roomSelect.value;
+    const roomSelect=document.getElementById('room').value;
+    const payload=JSON.parse(atob(authToken.split('.')[1]));
+    const UserId= payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+    const attendees=document.getElementById('Attendee');
+    const selectedAttendees=Array.from(attendees.selectedOptions).map(option=>option.value);
+    console.log(selectedAttendees);
+    //const tagsDiv=document.getElementById("attendees-tags");
+    /*let attendeesEmails=[];
+    attendees.addEventListener("keydown",function(e){
+        if(e.key==="Enter" && attendees.value.trim() !==""){
+            e.preventDefault();
+            const email=attendees.value.trim();
+            attendeesEmails.push(email);
+            const tag=document.createElement("span");
+            tag.classList.add("tag");
+            tag.textContent=email;
+            const removeBtn=document.createElement("button");
+            removeBtn.textContent="x";
+            removeBtn.onclick=function(){
+                tagsDiv.removeChild(tag);
+                attendeesEmails=attendeesEmails.filter(e=>e!==email);
+            };
+            tag.appendChild(removeBtn);
+            tagsDiv.appendChild(tag);
+            attendees.value="";
+
+        }
+})*/
+    const startTimeDate=`${date}T${startTime}:00.000Z`;
+    const endtTimeDate=`${date}T${endTime}:00.000Z`;
     /*roomSelect.addEventListener("change",function(){
         const selectedOption=this.options[this.selectedIndex];
         const roomId=selectedOption.dataset.id;
@@ -845,15 +895,16 @@ function BookMeeting(){
     let Payload={
         title:title,
         agenda:agenda,
-        startTime: startTime,
-        endTime:endTime,
+        startTime: startTimeDate,
+        endTime:endtTimeDate,
         date:date,
-        attendeesEmail:attendees,
-        roomId:selectedRoomId,
+        attendeesEmail:selectedAttendees,
+        roomId:roomSelect,
         createdBy:UserId
     }
+    console.log("Payload data:",Payload)
     try{
-        const res=fetch(apiUrl,{
+        const res=await fetch(apiUrl,{
             method:'POST',
             headers:{
                 'Authorization':`Bearer ${authToken}`,
@@ -861,7 +912,8 @@ function BookMeeting(){
             },
             body: JSON.stringify(Payload)
         });
-        if(!res.okay)throw new Error("Connecting Failed or Unauthorized access");
+        console.log(res.status);
+        if(!res.ok)throw new Error("Connecting Failed or Unauthorized access");
     }catch(error){
         console.error(error);
     }
